@@ -40,7 +40,11 @@ class ContentTools:
             'positionObject': 'object_management.applescript',
             'resizeObject': 'object_management.applescript', 
             'deleteObject': 'object_management.applescript',
-            'getSlideContentStats': 'object_management.applescript'
+            'getSlideContentStats': 'object_management.applescript',
+            
+            # Theme-aware content functions (NEW)
+            'setSlideContent': 'text_content.applescript',
+            'getSlideDefaultElements': 'text_content.applescript'
         }
     
     def get_tools(self) -> List[Tool]:
@@ -96,6 +100,42 @@ class ContentTools:
                         }
                     },
                     "required": ["slide_number", "image_path"]
+                }
+            ),
+            Tool(
+                name="set_slide_content",
+                description="Set slide content using theme's default title and body elements (recommended)",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "slide_number": {
+                            "type": "integer",
+                            "description": "Slide number"
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "Title text (optional)"
+                        },
+                        "body": {
+                            "type": "string", 
+                            "description": "Body text (optional)"
+                        }
+                    },
+                    "required": ["slide_number"]
+                }
+            ),
+            Tool(
+                name="get_slide_default_elements",
+                description="Get available default elements (title, body) in a slide",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "slide_number": {
+                            "type": "integer",
+                            "description": "Slide number"
+                        }
+                    },
+                    "required": ["slide_number"]
                 }
             )
         ]
@@ -161,4 +201,77 @@ class ContentTools:
             return [TextContent(
                 type="text",
                 text=f"❌ Failed to add image: {str(e)}"
+            )]
+    
+    async def set_slide_content(self, slide_number: int, title: Optional[str] = None, body: Optional[str] = None) -> List[TextContent]:
+        """Set slide content using theme's default elements"""
+        try:
+            validate_slide_number(slide_number)
+            
+            if not title and not body:
+                return [TextContent(
+                    type="text",
+                    text="❌ At least title or body text must be provided"
+                )]
+            
+            # Use theme-aware function
+            result = await self.runner.run_function(
+                script_file=self.script_files['setSlideContent'],
+                function_name='setSlideContent',
+                args=["", slide_number, title or "", body or ""]
+            )
+            
+            content_set = []
+            if title:
+                content_set.append("title")
+            if body:
+                content_set.append("body")
+            
+            return [TextContent(
+                type="text",
+                text=f"✅ Set slide {slide_number} content using theme elements: {', '.join(content_set)}"
+            )]
+            
+        except Exception as e:
+            return [TextContent(
+                type="text",
+                text=f"❌ Failed to set slide content: {str(e)}"
+            )]
+    
+    async def get_slide_default_elements(self, slide_number: int) -> List[TextContent]:
+        """Get available default elements in slide"""
+        try:
+            validate_slide_number(slide_number)
+            
+            result = await self.runner.run_function(
+                script_file=self.script_files['getSlideDefaultElements'],
+                function_name='getSlideDefaultElements',
+                args=["", slide_number]
+            )
+            
+            # Parse the result (should be a list of available elements)
+            if result and result.strip():
+                elements = result.replace("{", "").replace("}", "").split(", ")
+                available = [elem.strip('"') for elem in elements if elem.strip()]
+                
+                if available:
+                    return [TextContent(
+                        type="text",
+                        text=f"✅ Available default elements in slide {slide_number}: {', '.join(available)}"
+                    )]
+                else:
+                    return [TextContent(
+                        type="text",
+                        text=f"ℹ️ No default elements available in slide {slide_number} (blank layout)"
+                    )]
+            else:
+                return [TextContent(
+                    type="text",
+                    text=f"ℹ️ No default elements found in slide {slide_number}"
+                )]
+            
+        except Exception as e:
+            return [TextContent(
+                type="text",
+                text=f"❌ Failed to get slide elements: {str(e)}"
             )]
