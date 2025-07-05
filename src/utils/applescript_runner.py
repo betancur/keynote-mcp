@@ -129,6 +129,53 @@ class AppleScriptRunner:
         except Exception as e:
             raise AppleScriptError(f"Unexpected error during script execution: {str(e)}")
     
+    def run_inline_script(self, script_code: str) -> str:
+        """
+        Execute inline AppleScript code (alias for execute_script)
+        
+        Args:
+            script_code: AppleScript code
+            
+        Returns:
+            Execution result
+        """
+        return self.execute_script(script_code)
+    
+    def check_keynote_running(self) -> bool:
+        """
+        Check if Keynote application is running
+        
+        Returns:
+            True if Keynote is running, False otherwise
+        """
+        try:
+            script = '''
+                tell application "System Events"
+                    return (name of processes) contains "Keynote"
+                end tell
+            '''
+            result = self.execute_script(script)
+            return result.lower() == "true"
+        except Exception:
+            return False
+    
+    def launch_keynote(self) -> None:
+        """
+        Launch Keynote application
+        
+        Raises:
+            AppleScriptError: If Keynote fails to launch
+        """
+        try:
+            script = '''
+                tell application "Keynote"
+                    activate
+                end tell
+            '''
+            self.execute_script(script)
+        except Exception as e:
+            raise AppleScriptError(f"Failed to launch Keynote: {str(e)}")
+    
     def _format_args(self, *args) -> list[str]:
         """
         Format arguments for AppleScript

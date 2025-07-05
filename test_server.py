@@ -30,9 +30,6 @@ def test_tools_loading(server):
         tools.extend(server.slide_tools.get_tools()) 
         tools.extend(server.content_tools.get_tools())
         tools.extend(server.export_tools.get_tools())
-        
-        if server.unsplash_tools:
-            tools.extend(server.unsplash_tools.get_tools())
             
         print(f"✅ Tools loading: SUCCESS ({len(tools)} tools loaded)")
         return tools
