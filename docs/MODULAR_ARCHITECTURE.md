@@ -121,7 +121,6 @@ await runner.run_function("text_content.applescript", "addTextBox", args)
 
 ## Notes
 
-- All Chinese comments have been translated to English
 - Function signatures remain unchanged for backward compatibility
 - The `AppleScriptRunner` class has been enhanced with a `run_function()` method
 - Error handling maintains the same patterns as before
