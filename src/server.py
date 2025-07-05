@@ -36,7 +36,9 @@ class KeynoteMCPServer:
         try:
             self.unsplash_tools = UnsplashTools()
         except ParameterError as e:
-            print(f"⚠️ Unsplash工具初始化失败: {e}")
+            # Log error to stderr instead of stdout to avoid JSON parsing issues
+            import sys
+            sys.stderr.write(f"Warning: Unsplash tools initialization failed: {e}\n")
             self.unsplash_tools = None
         
         # 注册处理器

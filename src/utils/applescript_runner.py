@@ -49,12 +49,19 @@ class AppleScriptRunner:
         Raises:
             AppleScriptError: 脚本执行错误
         """
+        # Try .scpt first, then .applescript
         script_path = self.script_dir / f"{script_name}.scpt"
+        if not script_path.exists():
+            script_path = self.script_dir / f"{script_name}.applescript"
         
         if not script_path.exists():
-            raise AppleScriptError(f"Script file not found: {script_path}")
+            raise AppleScriptError(f"Script file not found: {script_name} (tried .scpt and .applescript)")
         
-        # 构建 AppleScript 调用命令
+        # If it's a .applescript file, read and execute directly
+        if script_path.suffix == '.applescript':
+            return self._execute_applescript_file(script_path, function_name, *args)
+        
+        # For .scpt files, use the original method
         script_args = self._format_args(*args)
         applescript_code = f"""
         set scriptFile to "{script_path}"
@@ -104,6 +111,40 @@ class AppleScriptRunner:
             raise AppleScriptError("AppleScript execution timed out")
         except subprocess.SubprocessError as e:
             raise AppleScriptError(f"Failed to execute AppleScript: {e}")
+    
+    def _execute_applescript_file(self, script_path: Path, function_name: str, *args) -> str:
+        """
+        执行 .applescript 文件中的函数
+        
+        Args:
+            script_path: 脚本文件路径
+            function_name: 函数名
+            *args: 函数参数
+            
+        Returns:
+            执行结果
+        """
+        try:
+            # Read the applescript file
+            with open(script_path, 'r', encoding='utf-8') as f:
+                script_content = f.read()
+            
+            # Format arguments
+            script_args = self._format_args(*args)
+            
+            # Create the full script with function call
+            full_script = f"""
+{script_content}
+
+{function_name}({script_args})
+"""
+            
+            return self._execute_applescript(full_script)
+            
+        except FileNotFoundError:
+            raise AppleScriptError(f"Script file not found: {script_path}")
+        except UnicodeDecodeError:
+            raise AppleScriptError(f"Unable to read script file (encoding issue): {script_path}")
     
     def _format_args(self, *args) -> str:
         """
@@ -228,7 +269,11 @@ class AppleScriptRunner:
             return []
         
         scripts = []
+        # Check for both .scpt and .applescript files
         for script_file in self.script_dir.glob("*.scpt"):
             scripts.append(script_file.stem)
+        for script_file in self.script_dir.glob("*.applescript"):
+            if script_file.stem not in scripts:  # Avoid duplicates
+                scripts.append(script_file.stem)
         
         return sorted(scripts) 
