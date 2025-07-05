@@ -1,5 +1,6 @@
 """
-Content management tools - Simplified version
+Content management tools - Modular version
+Using separated AppleScript files for better maintainability
 """
 
 from typing import Any, Dict, List, Optional
@@ -8,10 +9,39 @@ from ..utils import AppleScriptRunner, validate_slide_number, validate_coordinat
 
 
 class ContentTools:
-    """Content management tools class"""
+    """Content management tools class - uses modular AppleScript files"""
     
     def __init__(self):
         self.runner = AppleScriptRunner()
+        # Define which AppleScript file contains each function
+        self.script_files = {
+            # Text content functions
+            'addTextBox': 'text_content.applescript',
+            'addTitle': 'text_content.applescript', 
+            'addSubtitle': 'text_content.applescript',
+            'addBulletList': 'text_content.applescript',
+            'addNumberedList': 'text_content.applescript',
+            'addCodeBlock': 'text_content.applescript',
+            'addQuote': 'text_content.applescript',
+            'editTextBox': 'text_content.applescript',
+            
+            # Media content functions
+            'addImage': 'media_content.applescript',
+            
+            # Shapes and tables functions
+            'addShape': 'shapes_tables.applescript',
+            'addTable': 'shapes_tables.applescript',
+            'setTableCell': 'shapes_tables.applescript',
+            
+            # Formatting functions
+            'setTextStyle': 'formatting.applescript',
+            
+            # Object management functions
+            'positionObject': 'object_management.applescript',
+            'resizeObject': 'object_management.applescript', 
+            'deleteObject': 'object_management.applescript',
+            'getSlideContentStats': 'object_management.applescript'
+        }
     
     def get_tools(self) -> List[Tool]:
         """Get all content management tools"""
@@ -82,24 +112,16 @@ class ContentTools:
                     text="❌ Text content cannot be empty"
                 )]
             
-            # Escape special characters in text
-            escaped_text = text.replace('"', '\\"').replace('\n', '\\n')
-            
             # Use default coordinates if not specified
             if x == 0.0 and y == 0.0:
                 x, y = 100.0, 200.0
             
-            script = f'''
-            tell application "Keynote"
-                tell front document
-                    tell slide {slide_number}
-                        make new text item with properties {{position:{{{x}, {y}}}, object text:"{escaped_text}"}}
-                    end tell
-                end tell
-            end tell
-            '''
-            
-            result = self.runner.run_inline_script(script)
+            # Use modular AppleScript function
+            result = await self.runner.run_function(
+                script_file=self.script_files['addTextBox'],
+                function_name='addTextBox',
+                args=["", slide_number, text, x, y, 0, 0]
+            )
             
             return [TextContent(
                 type="text",
@@ -123,17 +145,12 @@ class ContentTools:
             if x == 0.0 and y == 0.0:
                 x, y = 300.0, 200.0
             
-            script = f'''
-            tell application "Keynote"
-                tell front document
-                    tell slide {slide_number}
-                        make new image with properties {{position:{{{x}, {y}}}, file:"{image_path}"}}
-                    end tell
-                end tell
-            end tell
-            '''
-            
-            result = self.runner.run_inline_script(script)
+            # Use modular AppleScript function
+            result = await self.runner.run_function(
+                script_file=self.script_files['addImage'],
+                function_name='addImage',
+                args=["", slide_number, image_path, x, y, 0, 0]
+            )
             
             return [TextContent(
                 type="text",

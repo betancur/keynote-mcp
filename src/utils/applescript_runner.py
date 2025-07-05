@@ -129,6 +129,56 @@ class AppleScriptRunner:
         except Exception as e:
             raise AppleScriptError(f"Unexpected error during script execution: {str(e)}")
     
+    def run_function(self, script_file: str, function_name: str, args: list) -> str:
+        """
+        Run a specific function from an AppleScript file with arguments
+        
+        Args:
+            script_file: AppleScript file name (with extension)
+            function_name: Function name to call
+            args: List of arguments to pass to the function
+            
+        Returns:
+            Script execution result
+        """
+        script_path = self.script_dir / script_file
+        
+        if not script_path.exists():
+            raise AppleScriptError(f"Script file not found: {script_file}")
+        
+        try:
+            # Read the script content
+            script_content = script_path.read_text(encoding='utf-8')
+            
+            # Format the arguments for AppleScript
+            formatted_args = []
+            for arg in args:
+                if isinstance(arg, str):
+                    # Escape quotes in string arguments
+                    escaped_arg = arg.replace('"', '\\"')
+                    formatted_args.append(f'"{escaped_arg}"')
+                elif isinstance(arg, (int, float)):
+                    formatted_args.append(str(arg))
+                elif isinstance(arg, bool):
+                    formatted_args.append("true" if arg else "false")
+                elif arg is None or arg == "":
+                    formatted_args.append('""')
+                else:
+                    formatted_args.append(str(arg))
+            
+            # Create the function call
+            args_str = ", ".join(formatted_args)
+            function_call = f"{function_name}({args_str})"
+            
+            # Combine script content with function call
+            full_script = f"{script_content}\n\n{function_call}"
+            
+            # Execute the script
+            return self.execute_script(full_script)
+            
+        except Exception as e:
+            raise AppleScriptError(f"Failed to execute function {function_name} in {script_file}: {str(e)}")
+    
     def run_inline_script(self, script_code: str) -> str:
         """
         Execute inline AppleScript code (alias for execute_script)
