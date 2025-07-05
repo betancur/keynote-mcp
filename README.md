@@ -2,17 +2,20 @@
 
 A Model Context Protocol (MCP) server that enables AI assistants to control Keynote presentations through AppleScript automation.
 
+> **🎉 This is an enhanced fork** featuring modular architecture, theme-aware content management, and comprehensive documentation improvements.
+
 ## Features
 - **Presentation Management**: Create, open, save, close presentations  
 - **Slide Operations**: Add, delete, duplicate, move slides
-- **Content Management**: Add text and images to slides
+- **Theme-Aware Content**: Professional content placement using Keynote's design elements
+- **Modular Architecture**: Maintainable codebase with specialized AppleScript modules
 - **Export Functions**: Screenshots, PDF export
 
 ## Quick Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/easychen/keynote-mcp.git
+   git clone https://github.com/betancur/keynote-mcp.git
    cd keynote-mcp
    ```
 
@@ -129,6 +132,25 @@ result = await call_tool("add_image", {
     "y": 150
 })
 ```
+
+## 🚀 What's New in This Fork
+
+This enhanced version includes significant improvements over the original:
+
+### ✨ **Major Enhancements**
+- **🏗️ Modular Architecture**: Split monolithic AppleScript into 5 specialized modules for better maintainability
+- **🎨 Theme-Aware Content**: Smart content placement using Keynote's built-in design elements
+- **📚 Comprehensive Documentation**: Complete guides in the `docs/` folder
+- **🔧 Enhanced Integration**: Improved Python-AppleScript modular execution
+- **🌍 Internationalization**: All Chinese comments translated to English
+
+### 🎯 **Key Benefits**
+- **Professional Results**: Theme-aware functions create presentations with consistent styling
+- **Better Performance**: Modular loading only loads necessary AppleScript code
+- **Easier Maintenance**: Specialized files for different functionality areas
+- **Developer Friendly**: Complete documentation and architecture guides
+
+> **Credits**: This fork is based on the original [keynote-mcp](https://github.com/easychen/keynote-mcp) by [@easychen](https://github.com/easychen). We've enhanced it with modern architecture and professional content management features.
 
 ## License
 MIT License

@@ -53,13 +53,13 @@ def handle_applescript_error(error_output: str) -> None:
     elif "syntax error" in error_output.lower():
         raise AppleScriptError(f"AppleScript syntax error: {error_output}")
     
-    # 其他错误
+    # Other errors
     else:
         raise AppleScriptError(f"Unknown AppleScript error: {error_output}")
 
 
 def validate_slide_number(slide_number: Optional[int], max_slides: Optional[int] = None) -> int:
-    """验证幻灯片编号"""
+    """Validate slide number"""
     if slide_number is None:
         raise ParameterError("Slide number is required")
     
@@ -73,7 +73,7 @@ def validate_slide_number(slide_number: Optional[int], max_slides: Optional[int]
 
 
 def validate_coordinates(x: Optional[float], y: Optional[float]) -> tuple[float, float]:
-    """验证坐标值"""
+    """Validate coordinates"""
     if x is not None and (not isinstance(x, (int, float)) or x < 0):
         raise ParameterError(f"Invalid x coordinate: {x}")
     
@@ -84,11 +84,11 @@ def validate_coordinates(x: Optional[float], y: Optional[float]) -> tuple[float,
 
 
 def validate_file_path(file_path: str) -> str:
-    """验证文件路径"""
+    """Validate file path"""
     if not file_path or not isinstance(file_path, str):
         raise ParameterError("File path is required and must be a string")
     
-    # 基本路径验证
+    # Basic path validation
     if not file_path.strip():
         raise ParameterError("File path cannot be empty")
     

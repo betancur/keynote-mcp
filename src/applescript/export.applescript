@@ -1,7 +1,7 @@
 -- export.applescript
--- 导出和截图脚本
+-- Export and screenshot script
 
--- 截图单个幻灯片
+-- Screenshot single slide
 on screenshotSlide(docName, slideNumber, outputPath, imageFormat, quality)
     tell application "Keynote"
         if docName is "" then
@@ -12,14 +12,14 @@ on screenshotSlide(docName, slideNumber, outputPath, imageFormat, quality)
         
         set targetSlide to slide slideNumber of targetDoc
         
-        -- 设置导出格式
+        -- Set export format
         if imageFormat is "jpg" or imageFormat is "jpeg" then
             set exportFormat to JPEG
         else
             set exportFormat to PNG
         end if
         
-        -- 导出幻灯片为图片
+        -- Export slide as image
         set outputFile to POSIX file outputPath
         export targetSlide to outputFile as exportFormat
         
@@ -27,7 +27,7 @@ on screenshotSlide(docName, slideNumber, outputPath, imageFormat, quality)
     end tell
 end screenshotSlide
 
--- 截图所有幻灯片
+-- Screenshot all slides
 on screenshotAllSlides(docName, outputDir, imageFormat, quality)
     tell application "Keynote"
         if docName is "" then
@@ -39,7 +39,7 @@ on screenshotAllSlides(docName, outputDir, imageFormat, quality)
         set slideCount to count of slides of targetDoc
         set exportedFiles to {}
         
-        -- 设置导出格式
+        -- Set export format
         if imageFormat is "jpg" or imageFormat is "jpeg" then
             set exportFormat to JPEG
             set fileExtension to ".jpg"
@@ -48,7 +48,7 @@ on screenshotAllSlides(docName, outputDir, imageFormat, quality)
             set fileExtension to ".png"
         end if
         
-        -- 逐个导出幻灯片
+        -- Export slides one by one
         repeat with i from 1 to slideCount
             set targetSlide to slide i of targetDoc
             set fileName to "slide_" & (i as string) & fileExtension
@@ -63,7 +63,7 @@ on screenshotAllSlides(docName, outputDir, imageFormat, quality)
     end tell
 end screenshotAllSlides
 
--- 导出演示文稿为 PDF
+-- Export presentation as PDF
 on exportPDF(docName, outputPath, slideRange)
     tell application "Keynote"
         if docName is "" then
@@ -75,11 +75,11 @@ on exportPDF(docName, outputPath, slideRange)
         set outputFile to POSIX file outputPath
         
         if slideRange is "" then
-            -- 导出所有幻灯片
+            -- Export all slides
             export targetDoc to outputFile as PDF
         else
-            -- 导出指定范围的幻灯片
-            -- 注意：Keynote 可能不直接支持范围导出，这里提供基本实现
+            -- Export slides in specified range
+            -- Note: Keynote may not directly support range export, basic implementation provided here
             export targetDoc to outputFile as PDF
         end if
         
@@ -87,7 +87,7 @@ on exportPDF(docName, outputPath, slideRange)
     end tell
 end exportPDF
 
--- 导出演示文稿为图片序列
+-- Export presentation as image sequence
 on exportImages(docName, outputDir, imageFormat, quality)
     tell application "Keynote"
         if docName is "" then
@@ -96,14 +96,14 @@ on exportImages(docName, outputDir, imageFormat, quality)
             set targetDoc to document docName
         end if
         
-        -- 设置导出格式
+        -- Set export format
         if imageFormat is "jpg" or imageFormat is "jpeg" then
             set exportFormat to JPEG
         else
             set exportFormat to PNG
         end if
         
-        -- 导出所有幻灯片
+        -- Export all slides
         set outputFolder to POSIX file outputDir
         export targetDoc to outputFolder as exportFormat
         
@@ -111,7 +111,7 @@ on exportImages(docName, outputDir, imageFormat, quality)
     end tell
 end exportImages
 
--- 导出演示文稿为 PowerPoint 格式
+-- Export presentation as PowerPoint format
 on exportPowerPoint(docName, outputPath)
     tell application "Keynote"
         if docName is "" then
@@ -127,7 +127,7 @@ on exportPowerPoint(docName, outputPath)
     end tell
 end exportPowerPoint
 
--- 导出演示文稿为 QuickTime 影片
+-- Export presentation as QuickTime movie
 on exportMovie(docName, outputPath, movieFormat, quality)
     tell application "Keynote"
         if docName is "" then
@@ -138,21 +138,21 @@ on exportMovie(docName, outputPath, movieFormat, quality)
         
         set outputFile to POSIX file outputPath
         
-        -- 设置影片格式
+        -- Set movie format
         if movieFormat is "mov" then
             set exportFormat to QuickTime movie
         else
             set exportFormat to QuickTime movie
         end if
         
-        -- 导出为影片
+        -- Export as movie
         export targetDoc to outputFile as exportFormat
         
         return true
     end tell
 end exportMovie
 
--- 导出演示文稿为 HTML
+-- Export presentation as HTML
 on exportHTML(docName, outputPath)
     tell application "Keynote"
         if docName is "" then
@@ -168,7 +168,7 @@ on exportHTML(docName, outputPath)
     end tell
 end exportHTML
 
--- 打印演示文稿
+-- Print presentation
 on printPresentation(docName, printerName, slideRange)
     tell application "Keynote"
         if docName is "" then
@@ -177,14 +177,14 @@ on printPresentation(docName, printerName, slideRange)
             set targetDoc to document docName
         end if
         
-        -- 基本打印功能
+        -- Basic print functionality
         if printerName is not "" then
-            -- 设置打印机（如果指定）
+            -- Set printer if specified
             tell application "System Events"
                 tell process "Keynote"
                     keystroke "p" using command down
                     delay 1
-                    -- 这里可以添加更多打印设置
+                    -- More print settings can be added here
                 end tell
             end tell
         else
@@ -195,26 +195,26 @@ on printPresentation(docName, printerName, slideRange)
     end tell
 end printPresentation
 
--- 获取导出选项
+-- Get export options
 on getExportOptions()
     set exportOptions to {}
     
-    -- 支持的图片格式
+    -- Supported image formats
     set imageFormats to {"PNG", "JPEG", "TIFF", "GIF"}
     set end of exportOptions to imageFormats
     
-    -- 支持的文档格式
+    -- Supported document formats
     set documentFormats to {"PDF", "PowerPoint", "HTML", "QuickTime"}
     set end of exportOptions to documentFormats
     
-    -- 质量选项
+    -- Quality options
     set qualityOptions to {"Low", "Medium", "High", "Maximum"}
     set end of exportOptions to qualityOptions
     
     return exportOptions
 end getExportOptions
 
--- 批量导出多个演示文稿
+-- Batch export multiple presentations
 on batchExport(docNames, outputDir, exportFormat, quality)
     set exportedFiles to {}
     
@@ -253,7 +253,7 @@ on batchExport(docNames, outputDir, exportFormat, quality)
     return exportedFiles
 end batchExport
 
--- 获取幻灯片预览
+-- Get slide preview
 on getSlidePreview(docName, slideNumber, previewSize)
     tell application "Keynote"
         if docName is "" then
@@ -264,12 +264,12 @@ on getSlidePreview(docName, slideNumber, previewSize)
         
         set targetSlide to slide slideNumber of targetDoc
         
-        -- 创建临时预览文件
+        -- Create temporary preview file
         set tempDir to (path to temporary items folder) as string
         set tempFile to tempDir & "slide_preview_" & (slideNumber as string) & ".png"
         set tempPath to POSIX file tempFile
         
-        -- 导出预览
+        -- Export preview
         export targetSlide to tempPath as PNG
         
         return tempFile
