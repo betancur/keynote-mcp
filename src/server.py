@@ -162,60 +162,6 @@ class KeynoteMCPServer:
                         x=arguments.get("x"),
                         y=arguments.get("y")
                     )
-                elif name == "add_title":
-                    return await self.content_tools.add_title(
-                        slide_number=arguments["slide_number"],
-                        title=arguments["title"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
-                elif name == "add_subtitle":
-                    return await self.content_tools.add_subtitle(
-                        slide_number=arguments["slide_number"],
-                        subtitle=arguments["subtitle"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
-                elif name == "add_bullet_list":
-                    return await self.content_tools.add_bullet_list(
-                        slide_number=arguments["slide_number"],
-                        items=arguments["items"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
-                elif name == "add_numbered_list":
-                    return await self.content_tools.add_numbered_list(
-                        slide_number=arguments["slide_number"],
-                        items=arguments["items"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
-                elif name == "add_code_block":
-                    return await self.content_tools.add_code_block(
-                        slide_number=arguments["slide_number"],
-                        code=arguments["code"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
-                elif name == "add_quote":
-                    return await self.content_tools.add_quote(
-                        slide_number=arguments["slide_number"],
-                        quote=arguments["quote"],
-                        x=arguments.get("x"),
-                        y=arguments.get("y"),
-                        font_size=arguments.get("font_size"),
-                        font_name=arguments.get("font_name", "")
-                    )
                 elif name == "add_image":
                     return await self.content_tools.add_image(
                         slide_number=arguments["slide_number"],
