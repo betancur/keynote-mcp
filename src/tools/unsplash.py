@@ -1,5 +1,5 @@
 """
-Unsplash配图工具
+Unsplash image tools
 """
 
 import os
@@ -13,12 +13,12 @@ from ..utils import AppleScriptRunner, validate_slide_number, ParameterError
 
 
 class UnsplashTools:
-    """Unsplash配图工具类"""
+    """Unsplash image tools class"""
     
     def __init__(self):
         self.runner = AppleScriptRunner()
         
-        # 尝试加载 .env 文件
+        # Try to load .env file
         self._load_env_if_needed()
         
         self.api_key = os.getenv('UNSPLASH_KEY')
@@ -49,27 +49,27 @@ class UnsplashTools:
             pass
     
     def get_tools(self) -> List[Tool]:
-        """获取所有Unsplash配图工具"""
+        """Get all Unsplash image tools"""
         return [
             Tool(
                 name="search_unsplash_images",
-                description="搜索Unsplash图片",
+                description="Search Unsplash images",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "搜索关键词"
+                            "description": "Search keywords"
                         },
                         "per_page": {
                             "type": "integer",
-                            "description": "每页图片数量（1-30，默认10）",
+                            "description": "Number of images per page (1-30, default 10)",
                             "minimum": 1,
                             "maximum": 30
                         },
                         "orientation": {
                             "type": "string",
-                            "description": "图片方向（landscape/portrait/squarish）",
+                            "description": "Image orientation (landscape/portrait/squarish)",
                             "enum": ["landscape", "portrait", "squarish"]
                         },
                         "order_by": {
@@ -83,7 +83,7 @@ class UnsplashTools:
             ),
             Tool(
                 name="add_unsplash_image_to_slide",
-                description="搜索Unsplash图片并添加到幻灯片",
+                description="Search Unsplash images and add to slide",
                 inputSchema={
                     "type": "object",
                     "properties": {

@@ -9,7 +9,6 @@ A Model Context Protocol (MCP) server that enables AI assistants to control Keyn
 - **Slide Operations**: Add, delete, duplicate, move slides
 - **Content Management**: Add text and images to slides
 - **Export Functions**: Screenshots, PDF export
-- **Unsplash Integration**: High-quality images (optional)
 
 ## Quick Setup
 
@@ -41,12 +40,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to control Keyn
    python3 test_server.py
    ```
 
-## Optional: Unsplash Images
-
-1. Get API key from [Unsplash Developers](https://unsplash.com/developers)
-2. Create `.env` file: `UNSPLASH_KEY=your_api_key`
-
-## Available Tools (23 total)
+## Available Tools (24 total)
 
 - `create_presentation` - Create new presentation
 - `open_presentation` - Open existing presentation  

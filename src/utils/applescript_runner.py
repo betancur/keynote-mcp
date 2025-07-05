@@ -1,28 +1,29 @@
 """
-AppleScript execution utilities for Keynote-MCP
+AppleScript runner utilities
 """
 
 import subprocess
-import os
 import json
-from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
+from typing import Any, Optional
+import os
+import tempfile
 
-from .error_handler import handle_applescript_error, AppleScriptError
+from .error_handler import AppleScriptError
 
 
 class AppleScriptRunner:
-    """AppleScript 执行器"""
+    """AppleScript executor"""
     
-    def __init__(self, script_dir: Optional[str] = None):
+    def __init__(self, script_dir: Optional[Path] = None) -> None:
         """
-        初始化 AppleScript 执行器
+        Initialize AppleScript executor
         
         Args:
-            script_dir: AppleScript 脚本目录路径
+            script_dir: AppleScript script directory path
         """
         if script_dir is None:
-            # 默认脚本目录
+            # Default script directory
             current_dir = Path(__file__).parent.parent
             script_dir = current_dir / "applescript"
         
@@ -30,24 +31,24 @@ class AppleScriptRunner:
         self._ensure_script_dir()
     
     def _ensure_script_dir(self) -> None:
-        """确保脚本目录存在"""
+        """Ensure script directory exists"""
         if not self.script_dir.exists():
             self.script_dir.mkdir(parents=True, exist_ok=True)
     
     def run_script(self, script_name: str, function_name: str, *args) -> str:
         """
-        运行 AppleScript 脚本中的指定函数
+        Run specified function in AppleScript script
         
         Args:
-            script_name: 脚本文件名（不含扩展名）
-            function_name: 函数名
-            *args: 函数参数
+            script_name: Script file name (without extension)
+            function_name: Function name
+            *args: Function parameters
             
         Returns:
-            脚本执行结果
+            Script execution result
             
         Raises:
-            AppleScriptError: 脚本执行错误
+            AppleScriptError: Script execution error
         """
         # Try .scpt first, then .applescript
         script_path = self.script_dir / f"{script_name}.scpt"
@@ -63,217 +64,129 @@ class AppleScriptRunner:
         
         # For .scpt files, use the original method
         script_args = self._format_args(*args)
-        applescript_code = f"""
-        set scriptFile to "{script_path}"
-        set scriptObj to load script POSIX file scriptFile
-        tell scriptObj to {function_name}({script_args})
-        """
         
-        return self._execute_applescript(applescript_code)
-    
-    def run_inline_script(self, script_code: str) -> str:
-        """
-        运行内联 AppleScript 代码
-        
-        Args:
-            script_code: AppleScript 代码
+        try:
+            # Build osascript command
+            cmd = [
+                "osascript",
+                str(script_path),
+                function_name
+            ] + script_args
             
-        Returns:
-            脚本执行结果
-        """
-        return self._execute_applescript(script_code)
-    
-    def _execute_applescript(self, script_code: str) -> str:
-        """
-        执行 AppleScript 代码
-        
-        Args:
-            script_code: AppleScript 代码
+            # Execute script
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
             
+            return result.stdout.strip()
+            
+        except subprocess.CalledProcessError as e:
+            raise AppleScriptError(f"AppleScript execution failed: {e.stderr.strip()}")
+        except Exception as e:
+            raise AppleScriptError(f"Unexpected error during script execution: {str(e)}")
+    
+    def _execute_applescript_file(self, script_path: Path, function_name: str, *args) -> str:
+        """
+        Execute AppleScript file directly
+        
         Returns:
-            执行结果
+            Script execution result
         """
         try:
-            # 使用 osascript 执行 AppleScript
+            # Execute AppleScript code
+            script_content = script_path.read_text(encoding='utf-8')
+            return self.execute_script(script_content)
+            
+        except Exception as e:
+            raise AppleScriptError(f"Failed to execute AppleScript file: {str(e)}")
+    
+    def execute_script(self, script_code: str) -> str:
+        """
+        Execute AppleScript code
+        
+        Args:
+            script_code: AppleScript code
+            
+        Returns:
+            Execution result
+        """
+        try:
+            # Use osascript to execute AppleScript
             result = subprocess.run(
                 ["osascript", "-e", script_code],
                 capture_output=True,
                 text=True,
-                timeout=30  # 30秒超时
+                check=True
             )
-            
-            if result.returncode != 0:
-                handle_applescript_error(result.stderr)
             
             return result.stdout.strip()
             
-        except subprocess.TimeoutExpired:
-            raise AppleScriptError("AppleScript execution timed out")
-        except subprocess.SubprocessError as e:
-            raise AppleScriptError(f"Failed to execute AppleScript: {e}")
+        except subprocess.CalledProcessError as e:
+            raise AppleScriptError(f"AppleScript execution failed: {e.stderr.strip()}")
+        except Exception as e:
+            raise AppleScriptError(f"Unexpected error during script execution: {str(e)}")
     
-    def _execute_applescript_file(self, script_path: Path, function_name: str, *args) -> str:
+    def _format_args(self, *args) -> list[str]:
         """
-        执行 .applescript 文件中的函数
+        Format arguments for AppleScript
         
         Args:
-            script_path: 脚本文件路径
-            function_name: 函数名
-            *args: 函数参数
+            *args: Function arguments
             
         Returns:
-            执行结果
-        """
-        try:
-            # Read the applescript file
-            with open(script_path, 'r', encoding='utf-8') as f:
-                script_content = f.read()
-            
-            # Format arguments
-            script_args = self._format_args(*args)
-            
-            # Create the full script with function call
-            full_script = f"""
-{script_content}
-
-{function_name}({script_args})
-"""
-            
-            return self._execute_applescript(full_script)
-            
-        except FileNotFoundError:
-            raise AppleScriptError(f"Script file not found: {script_path}")
-        except UnicodeDecodeError:
-            raise AppleScriptError(f"Unable to read script file (encoding issue): {script_path}")
-    
-    def _format_args(self, *args) -> str:
-        """
-        格式化函数参数为 AppleScript 格式
-        
-        Args:
-            *args: 参数列表
-            
-        Returns:
-            格式化后的参数字符串
+            Formatted argument list
         """
         formatted_args = []
-        
         for arg in args:
-            if arg is None:
-                formatted_args.append('""')
+            if isinstance(arg, (dict, list)):
+                # Convert complex objects to JSON strings
+                formatted_args.append(json.dumps(arg))
             elif isinstance(arg, bool):
+                # Convert boolean to AppleScript format
                 formatted_args.append("true" if arg else "false")
             elif isinstance(arg, (int, float)):
+                # Keep numbers as strings
                 formatted_args.append(str(arg))
-            elif isinstance(arg, str):
-                # 转义字符串中的引号
-                escaped_arg = arg.replace('"', '\\"')
-                formatted_args.append(f'"{escaped_arg}"')
-            elif isinstance(arg, (list, tuple)):
-                # 处理列表参数
-                list_items = [self._format_single_arg(item) for item in arg]
-                formatted_args.append(f"{{{', '.join(list_items)}}}")
+            elif arg is None:
+                # Handle None values
+                formatted_args.append("missing value")
             else:
-                # 其他类型转为字符串
-                formatted_args.append(f'"{str(arg)}"')
+                # Handle strings and other types
+                formatted_args.append(str(arg))
         
-        return ", ".join(formatted_args)
+        return formatted_args
+
+
+# Global instance for easy access
+applescript_runner = AppleScriptRunner()
+
+
+def run_applescript(script_name: str, function_name: str, *args) -> str:
+    """
+    Convenience function to run AppleScript
     
-    def _format_single_arg(self, arg: Any) -> str:
-        """格式化单个参数"""
-        if arg is None:
-            return '""'
-        elif isinstance(arg, bool):
-            return "true" if arg else "false"
-        elif isinstance(arg, (int, float)):
-            return str(arg)
-        elif isinstance(arg, str):
-            escaped_arg = arg.replace('"', '\\"')
-            return f'"{escaped_arg}"'
-        else:
-            return f'"{str(arg)}"'
+    Args:
+        script_name: Script file name (without extension)
+        function_name: Function name
+        *args: Function arguments
+        
+    Returns:
+        Script execution result
+    """
+    return applescript_runner.run_script(script_name, function_name, *args)
+
+
+def execute_applescript_code(script_code: str) -> str:
+    """
+    Convenience function to execute AppleScript code
     
-    def check_keynote_running(self) -> bool:
-        """检查 Keynote 是否正在运行"""
-        script = '''
-        tell application "System Events"
-            return (name of processes) contains "Keynote"
-        end tell
-        '''
+    Args:
+        script_code: AppleScript code
         
-        try:
-            result = self._execute_applescript(script)
-            return result.lower() == "true"
-        except AppleScriptError:
-            return False
-    
-    def launch_keynote(self) -> None:
-        """启动 Keynote 应用"""
-        script = '''
-        tell application "Keynote"
-            activate
-        end tell
-        '''
-        
-        self._execute_applescript(script)
-    
-    def quit_keynote(self) -> None:
-        """退出 Keynote 应用"""
-        script = '''
-        tell application "Keynote"
-            quit
-        end tell
-        '''
-        
-        self._execute_applescript(script)
-    
-    def get_keynote_version(self) -> str:
-        """获取 Keynote 版本"""
-        script = '''
-        tell application "Keynote"
-            return version
-        end tell
-        '''
-        
-        return self._execute_applescript(script)
-    
-    def compile_script(self, script_source: str, output_path: str) -> None:
-        """
-        编译 AppleScript 源码为 .scpt 文件
-        
-        Args:
-            script_source: AppleScript 源码
-            output_path: 输出文件路径
-        """
-        try:
-            # 使用 osacompile 编译脚本
-            result = subprocess.run(
-                ["osacompile", "-o", output_path],
-                input=script_source,
-                text=True,
-                capture_output=True,
-                timeout=10
-            )
-            
-            if result.returncode != 0:
-                raise AppleScriptError(f"Failed to compile script: {result.stderr}")
-                
-        except subprocess.TimeoutExpired:
-            raise AppleScriptError("Script compilation timed out")
-        except subprocess.SubprocessError as e:
-            raise AppleScriptError(f"Failed to compile script: {e}")
-    
-    def list_available_scripts(self) -> List[str]:
-        """列出可用的脚本文件"""
-        if not self.script_dir.exists():
-            return []
-        
-        scripts = []
-        # Check for both .scpt and .applescript files
-        for script_file in self.script_dir.glob("*.scpt"):
-            scripts.append(script_file.stem)
-        for script_file in self.script_dir.glob("*.applescript"):
-            if script_file.stem not in scripts:  # Avoid duplicates
-                scripts.append(script_file.stem)
-        
-        return sorted(scripts) 
+    Returns:
+        Execution result
+    """
+    return applescript_runner.execute_script(script_code)

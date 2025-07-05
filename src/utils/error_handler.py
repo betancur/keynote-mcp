@@ -7,49 +7,49 @@ from typing import Optional
 
 
 class KeynoteError(Exception):
-    """Keynote 操作基础异常"""
+    """Keynote operation base exception"""
     pass
 
 
 class AppleScriptError(KeynoteError):
-    """AppleScript 执行异常"""
+    """AppleScript execution exception"""
     pass
 
 
 class FileOperationError(KeynoteError):
-    """文件操作异常"""
+    """File operation exception"""
     pass
 
 
 class ParameterError(KeynoteError):
-    """参数验证异常"""
+    """Parameter validation exception"""
     pass
 
 
 def handle_applescript_error(error_output: str) -> None:
-    """处理 AppleScript 错误输出"""
+    """Handle AppleScript error output"""
     if not error_output:
         return
     
     error_output = error_output.strip()
     
-    # Keynote 应用错误
+    # Keynote application errors
     if "Keynote got an error" in error_output:
         raise AppleScriptError(f"Keynote error: {error_output}")
     
-    # 对象不存在错误
+    # Object not found errors
     elif "Can't get" in error_output:
         raise AppleScriptError(f"Object not found: {error_output}")
     
-    # 权限错误
+    # Permission errors
     elif "not allowed" in error_output or "permission" in error_output.lower():
         raise AppleScriptError(f"Permission denied: {error_output}")
     
-    # 文件操作错误
+    # File operation errors
     elif "file" in error_output.lower() and ("not found" in error_output.lower() or "doesn't exist" in error_output.lower()):
         raise FileOperationError(f"File operation error: {error_output}")
     
-    # 语法错误
+    # Syntax errors
     elif "syntax error" in error_output.lower():
         raise AppleScriptError(f"AppleScript syntax error: {error_output}")
     

@@ -1,5 +1,5 @@
 """
-幻灯片操作工具
+Slide operation tools
 """
 
 from typing import Any, Dict, List, Optional
@@ -8,17 +8,17 @@ from ..utils import AppleScriptRunner, validate_slide_number, ParameterError
 
 
 class SlideTools:
-    """幻灯片操作工具类"""
+    """Slide operation tools class"""
     
     def __init__(self):
         self.runner = AppleScriptRunner()
     
     def get_tools(self) -> List[Tool]:
-        """获取所有幻灯片操作工具"""
+        """Get all slide operation tools"""
         return [
             Tool(
                 name="add_slide",
-                description="添加新幻灯片",
+                description="Add new slide",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -186,9 +186,9 @@ class SlideTools:
         ]
     
     async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True) -> List[TextContent]:
-        """添加新幻灯片"""
+        """Add new slide"""
         try:
-            # 如果启用清除默认内容且没有指定布局，使用 Blank 布局
+            # If clear default content is enabled and no layout is specified, use Blank layout
             if clear_default_content and layout == "":
                 layout = "Blank"
             
@@ -238,7 +238,7 @@ class SlideTools:
             )]
     
     async def delete_slide(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
-        """删除幻灯片"""
+        """Delete slide"""
         try:
             validate_slide_number(slide_number)
             
@@ -266,7 +266,7 @@ class SlideTools:
             )]
     
     async def duplicate_slide(self, slide_number: int, doc_name: str = "", new_position: int = 0) -> List[TextContent]:
-        """复制幻灯片"""
+        """Duplicate slide"""
         try:
             validate_slide_number(slide_number)
             
@@ -301,7 +301,7 @@ class SlideTools:
             )]
     
     async def move_slide(self, from_position: int, to_position: int, doc_name: str = "") -> List[TextContent]:
-        """移动幻灯片位置"""
+        """Move slide position"""
         try:
             validate_slide_number(from_position)
             validate_slide_number(to_position)
@@ -331,7 +331,7 @@ class SlideTools:
             )]
     
     async def get_slide_count(self, doc_name: str = "") -> List[TextContent]:
-        """获取幻灯片数量"""
+        """Get slide count"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -357,7 +357,7 @@ class SlideTools:
             )]
     
     async def select_slide(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
-        """选择指定幻灯片"""
+        """Select specified slide"""
         try:
             validate_slide_number(slide_number)
             
@@ -385,7 +385,7 @@ class SlideTools:
             )]
     
     async def set_slide_layout(self, slide_number: int, layout: str, doc_name: str = "") -> List[TextContent]:
-        """设置幻灯片布局"""
+        """Set slide layout"""
         try:
             validate_slide_number(slide_number)
             
@@ -443,7 +443,7 @@ class SlideTools:
             )]
     
     async def get_slide_info(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
-        """获取幻灯片信息"""
+        """Get slide information"""
         try:
             validate_slide_number(slide_number)
             
@@ -496,7 +496,7 @@ class SlideTools:
             )]
     
     async def get_available_layouts(self, doc_name: str = "") -> List[TextContent]:
-        """获取可用布局列表"""
+        """Get available layout list"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"

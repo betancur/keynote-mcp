@@ -1,5 +1,5 @@
 """
-演示文稿管理工具
+Presentation management tools
 """
 
 from typing import Any, Dict, List, Optional
@@ -8,31 +8,31 @@ from ..utils import AppleScriptRunner, validate_file_path, KeynoteError
 
 
 class PresentationTools:
-    """演示文稿管理工具类"""
+    """Presentation management tools class"""
     
     def __init__(self):
         self.runner = AppleScriptRunner()
     
     def get_tools(self) -> List[Tool]:
-        """获取所有演示文稿管理工具"""
+        """Get all presentation management tools"""
         return [
             Tool(
                 name="create_presentation",
-                description="创建新的 Keynote 演示文稿",
+                description="Create new Keynote presentation",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "title": {
                             "type": "string",
-                            "description": "演示文稿标题"
+                            "description": "Presentation title"
                         },
                         "theme": {
                             "type": "string",
-                            "description": "主题名称（可选）"
+                            "description": "Theme name (optional)"
                         },
                         "template": {
                             "type": "string",
-                            "description": "模板路径（可选）"
+                            "description": "Template path (optional)"
                         }
                     },
                     "required": ["title"]
@@ -40,13 +40,13 @@ class PresentationTools:
             ),
             Tool(
                 name="open_presentation",
-                description="打开现有的 Keynote 演示文稿",
+                description="Open existing Keynote presentation",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "file_path": {
                             "type": "string",
-                            "description": "演示文稿文件路径"
+                            "description": "Presentation file path"
                         }
                     },
                     "required": ["file_path"]
@@ -54,7 +54,7 @@ class PresentationTools:
             ),
             Tool(
                 name="save_presentation",
-                description="保存演示文稿",
+                description="Save presentation",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -67,7 +67,7 @@ class PresentationTools:
             ),
             Tool(
                 name="close_presentation",
-                description="关闭演示文稿",
+                description="Close presentation",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -77,14 +77,14 @@ class PresentationTools:
                         },
                         "should_save": {
                             "type": "boolean",
-                            "description": "是否保存（默认为 true）"
+                            "description": "Whether to save (default is true)"
                         }
                     }
                 }
             ),
             Tool(
                 name="list_presentations",
-                description="列出所有打开的演示文稿",
+                description="List all open presentations",
                 inputSchema={
                     "type": "object",
                     "properties": {}
@@ -92,7 +92,7 @@ class PresentationTools:
             ),
             Tool(
                 name="set_presentation_theme",
-                description="设置演示文稿主题",
+                description="Set presentation theme",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -102,7 +102,7 @@ class PresentationTools:
                         },
                         "theme_name": {
                             "type": "string",
-                            "description": "主题名称"
+                            "description": "Theme name"
                         }
                     },
                     "required": ["theme_name"]
@@ -110,7 +110,7 @@ class PresentationTools:
             ),
             Tool(
                 name="get_presentation_info",
-                description="获取演示文稿信息",
+                description="Get presentation information",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -123,7 +123,7 @@ class PresentationTools:
             ),
             Tool(
                 name="get_available_themes",
-                description="获取可用主题列表",
+                description="Get available themes list",
                 inputSchema={
                     "type": "object",
                     "properties": {}
@@ -131,7 +131,7 @@ class PresentationTools:
             ),
             Tool(
                 name="get_presentation_resolution",
-                description="获取演示文稿分辨率信息",
+                description="Get presentation resolution information",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -144,7 +144,7 @@ class PresentationTools:
             ),
             Tool(
                 name="get_slide_size",
-                description="获取幻灯片尺寸和比例信息",
+                description="Get slide size and aspect ratio information",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -158,13 +158,13 @@ class PresentationTools:
         ]
     
     async def create_presentation(self, title: str, theme: str = "", template: str = "") -> List[TextContent]:
-        """创建新演示文稿"""
+        """Create new presentation"""
         try:
             # 确保 Keynote 运行
             if not self.runner.check_keynote_running():
                 self.runner.launch_keynote()
             
-            # 创建演示文稿
+            # Create presentation
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
                     activate
@@ -192,17 +192,17 @@ class PresentationTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功创建演示文稿: {result}"
+                text=f"✅ Successfully created presentation: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 创建演示文稿失败: {str(e)}"
+                text=f"❌ Failed to create presentation: {str(e)}"
             )]
     
     async def open_presentation(self, file_path: str) -> List[TextContent]:
-        """打开演示文稿"""
+        """Open presentation"""
         try:
             validate_file_path(file_path)
             
@@ -220,17 +220,17 @@ class PresentationTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功打开演示文稿: {result}"
+                text=f"✅ Successfully opened presentation: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 打开演示文稿失败: {str(e)}"
+                text=f"❌ Failed to open presentation: {str(e)}"
             )]
     
     async def save_presentation(self, doc_name: str = "") -> List[TextContent]:
-        """保存演示文稿"""
+        """Save presentation"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -246,17 +246,17 @@ class PresentationTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功保存演示文稿: {result}"
+                text=f"✅ Successfully saved presentation: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 保存演示文稿失败: {str(e)}"
+                text=f"❌ Failed to save presentation: {str(e)}"
             )]
     
     async def close_presentation(self, doc_name: str = "", should_save: bool = True) -> List[TextContent]:
-        """关闭演示文稿"""
+        """Close presentation"""
         try:
             save_flag = "true" if should_save else "false"
             
@@ -281,17 +281,17 @@ class PresentationTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功关闭演示文稿: {result}"
+                text=f"✅ Successfully closed presentation: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 关闭演示文稿失败: {str(e)}"
+                text=f"❌ Failed to close presentation: {str(e)}"
             )]
     
     async def list_presentations(self) -> List[TextContent]:
-        """列出所有打开的演示文稿"""
+        """List all open presentations"""
         try:
             result = self.runner.run_inline_script('''
                 tell application "Keynote"
@@ -308,22 +308,22 @@ class PresentationTools:
                 presentation_list = "\n".join([f"• {name}" for name in presentations])
                 return [TextContent(
                     type="text",
-                    text=f"📋 打开的演示文稿:\n{presentation_list}"
+                    text=f"📋 Open presentations:\n{presentation_list}"
                 )]
             else:
                 return [TextContent(
                     type="text",
-                    text="📋 当前没有打开的演示文稿"
+                    text="📋 No presentations currently open"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取演示文稿列表失败: {str(e)}"
+                text=f"❌ Failed to get presentation list: {str(e)}"
             )]
     
     async def set_presentation_theme(self, theme_name: str, doc_name: str = "") -> List[TextContent]:
-        """设置演示文稿主题"""
+        """Set presentation theme"""
         try:
             # 使用 Keynote 14 兼容的主题设置方法
             result = self.runner.run_inline_script(f'''

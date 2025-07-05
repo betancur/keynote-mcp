@@ -1,5 +1,5 @@
 """
-内容管理工具 - 简化版
+Content management tools - Simplified version
 """
 
 from typing import Any, Dict, List, Optional
@@ -8,35 +8,35 @@ from ..utils import AppleScriptRunner, validate_slide_number, validate_coordinat
 
 
 class ContentTools:
-    """内容管理工具类"""
+    """Content management tools class"""
     
     def __init__(self):
         self.runner = AppleScriptRunner()
     
     def get_tools(self) -> List[Tool]:
-        """获取所有内容管理工具"""
+        """Get all content management tools"""
         return [
             Tool(
                 name="add_text_box",
-                description="在幻灯片中添加文本框",
+                description="Add a text box to slide",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "幻灯片编号"
+                            "description": "Slide number"
                         },
                         "text": {
                             "type": "string",
-                            "description": "文本内容"
+                            "description": "Text content"
                         },
                         "x": {
                             "type": "number",
-                            "description": "X坐标（像素，可选）"
+                            "description": "X coordinate (pixels, optional)"
                         },
                         "y": {
                             "type": "number",
-                            "description": "Y坐标（像素，可选）"
+                            "description": "Y coordinate (pixels, optional)"
                         }
                     },
                     "required": ["slide_number", "text"]
@@ -44,25 +44,25 @@ class ContentTools:
             ),
             Tool(
                 name="add_image",
-                description="在幻灯片中添加图片",
+                description="Add an image to slide",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "幻灯片编号"
+                            "description": "Slide number"
                         },
                         "image_path": {
                             "type": "string",
-                            "description": "图片文件路径"
+                            "description": "Image file path"
                         },
                         "x": {
                             "type": "number",
-                            "description": "X坐标（像素，可选）"
+                            "description": "X coordinate (pixels, optional)"
                         },
                         "y": {
                             "type": "number",
-                            "description": "Y坐标（像素，可选）"
+                            "description": "Y coordinate (pixels, optional)"
                         }
                     },
                     "required": ["slide_number", "image_path"]
@@ -71,7 +71,7 @@ class ContentTools:
         ]
     
     async def add_text_box(self, slide_number: int, text: str, x: Optional[float] = None, y: Optional[float] = None) -> List[TextContent]:
-        """在幻灯片中添加文本框"""
+        """Add text box to slide"""
         try:
             validate_slide_number(slide_number)
             x, y = validate_coordinates(x, y)
@@ -79,13 +79,13 @@ class ContentTools:
             if not text or not text.strip():
                 return [TextContent(
                     type="text",
-                    text="❌ 文本内容不能为空"
+                    text="❌ Text content cannot be empty"
                 )]
             
-            # 转义文本中的特殊字符
+            # Escape special characters in text
             escaped_text = text.replace('"', '\\"').replace('\n', '\\n')
             
-            # 如果未指定坐标，使用默认值
+            # Use default coordinates if not specified
             if x == 0.0 and y == 0.0:
                 x, y = 100.0, 200.0
             
@@ -103,23 +103,23 @@ class ContentTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 已在幻灯片 {slide_number} 的位置 ({x}, {y}) 添加文本框"
+                text=f"✅ Added text box to slide {slide_number} at position ({x}, {y})"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 添加文本框失败: {str(e)}"
+                text=f"❌ Failed to add text box: {str(e)}"
             )]
     
     async def add_image(self, slide_number: int, image_path: str, x: Optional[float] = None, y: Optional[float] = None) -> List[TextContent]:
-        """在幻灯片中添加图片"""
+        """Add image to slide"""
         try:
             validate_slide_number(slide_number)
             validate_file_path(image_path)
             x, y = validate_coordinates(x, y)
             
-            # 如果未指定坐标，使用默认值
+            # Use default coordinates if not specified
             if x == 0.0 and y == 0.0:
                 x, y = 300.0, 200.0
             
@@ -137,11 +137,11 @@ class ContentTools:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 已在幻灯片 {slide_number} 的位置 ({x}, {y}) 添加图片: {image_path}"
+                text=f"✅ Added image to slide {slide_number} at position ({x}, {y}): {image_path}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 添加图片失败: {str(e)}"
+                text=f"❌ Failed to add image: {str(e)}"
             )]
