@@ -234,7 +234,7 @@ on getSlideTitle(docName, slideNumber)
         try
             -- Try to get title text box content
             repeat with textItem in text items of targetSlide
-                if object text of textItem contains "Title" or object text of textItem contains "标题" then
+                if object text of textItem contains "Title" then
                     return object text of textItem
                 end if
             end repeat
@@ -265,7 +265,7 @@ on setSlideTitle(docName, slideNumber, titleText)
         try
             -- Try to find title text box and set content
             repeat with textItem in text items of targetSlide
-                if object text of textItem contains "Title" or object text of textItem contains "标题" then
+                if object text of textItem contains "Title" then
                     set object text of textItem to titleText
                     return true
                 end if
