@@ -21,6 +21,7 @@ from mcp.types import (
 from mcp.server.stdio import stdio_server
 
 from .tools import PresentationTools, SlideTools, ContentTools, ExportTools
+from .tools.smart_layout import SmartLayoutTools
 from .utils import KeynoteError, AppleScriptError, FileOperationError, ParameterError
 
 
@@ -33,6 +34,7 @@ class KeynoteMCPServer:
         self.slide_tools = SlideTools()
         self.content_tools = ContentTools()
         self.export_tools = ExportTools()
+        self.smart_layout_tools = SmartLayoutTools()
         
         # Register handlers
         self._register_handlers()
@@ -48,6 +50,7 @@ class KeynoteMCPServer:
             tools.extend(self.slide_tools.get_tools())
             tools.extend(self.content_tools.get_tools())
             tools.extend(self.export_tools.get_tools())
+            tools.extend(self.smart_layout_tools.get_tools())
             return tools
         
         @self.server.call_tool()
@@ -101,7 +104,9 @@ class KeynoteMCPServer:
                     return await self.slide_tools.add_slide(
                         doc_name=arguments.get("doc_name", ""),
                         position=arguments.get("position", 0),
-                        layout=arguments.get("layout", "")
+                        layout=arguments.get("layout", ""),
+                        content_type=arguments.get("content_type", ""),
+                        content_description=arguments.get("content_description", "")
                     )
                 elif name == "delete_slide":
                     return await self.slide_tools.delete_slide(
@@ -186,6 +191,31 @@ class KeynoteMCPServer:
                     return await self.export_tools.export_images(
                         output_dir=arguments["output_dir"],
                         format=arguments.get("format", "png")
+                    )
+                
+                # Smart layout tools
+                elif name == "get_available_master_slides":
+                    return await self.smart_layout_tools.get_available_master_slides(
+                        doc_name=arguments.get("doc_name", "")
+                    )
+                elif name == "suggest_layout_for_content":
+                    return await self.smart_layout_tools.suggest_layout_for_content(
+                        content_type=arguments["content_type"],
+                        content_description=arguments.get("content_description", ""),
+                        doc_name=arguments.get("doc_name", "")
+                    )
+                elif name == "add_slide_with_smart_layout":
+                    return await self.smart_layout_tools.add_slide_with_smart_layout(
+                        content_type=arguments["content_type"],
+                        content_description=arguments.get("content_description", ""),
+                        position=arguments.get("position", 0),
+                        doc_name=arguments.get("doc_name", "")
+                    )
+                elif name == "get_layout_recommendations":
+                    return await self.smart_layout_tools.get_layout_recommendations(
+                        content_type=arguments["content_type"],
+                        content_description=arguments.get("content_description", ""),
+                        doc_name=arguments.get("doc_name", "")
                     )
                 
                 else:

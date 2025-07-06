@@ -9,7 +9,7 @@ def get_slide_tool_schemas():
     return [
         Tool(
             name="add_slide",
-            description="Add new slide",
+            description="Add new slide with optional smart layout selection based on content type",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -23,7 +23,15 @@ def get_slide_tool_schemas():
                     },
                     "layout": {
                         "type": "string",
-                        "description": "Layout type (optional)"
+                        "description": "Layout type (optional, overrides smart layout if provided)"
+                    },
+                    "content_type": {
+                        "type": "string",
+                        "description": "Content type for smart layout selection: 'image', 'photo', 'text', 'content', 'title', 'quote', 'comparison', 'split', 'gallery', 'multiple_images', 'blank' (optional)"
+                    },
+                    "content_description": {
+                        "type": "string",
+                        "description": "Description of the content for presenter notes (used for image suggestions in presenter notes when content_type is image/photo/gallery)"
                     }
                 }
             }

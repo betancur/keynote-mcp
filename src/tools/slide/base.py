@@ -28,9 +28,9 @@ class SlideTools:
         return get_slide_tool_schemas()
     
     # Basic operations
-    async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True) -> List[TextContent]:
+    async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True, content_type: str = "", content_description: str = "") -> List[TextContent]:
         """Add new slide"""
-        return await self.basic_ops.add_slide(doc_name, position, layout, clear_default_content)
+        return await self.basic_ops.add_slide(doc_name, position, layout, clear_default_content, content_type, content_description)
     
     async def delete_slide(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
         """Delete slide"""

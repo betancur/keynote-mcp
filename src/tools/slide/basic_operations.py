@@ -13,11 +13,28 @@ class SlideBasicOperations:
     def __init__(self, runner: AppleScriptRunner):
         self.runner = runner
     
-    async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True) -> List[TextContent]:
+    async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True, content_type: str = "", content_description: str = "") -> List[TextContent]:
         """Add new slide"""
         try:
-            # If no layout is specified, use Title & Content layout (layout 2)
-            if layout == "":
+            # If content_type is provided and no layout specified, use smart layout
+            if content_type and layout == "":
+                try:
+                    # Try to use smart layout based on content type
+                    from ...tools.smart_layout import SmartLayoutTools
+                    smart_layout = SmartLayoutTools()
+                    suggestion_result = smart_layout.runner.run_function(
+                        script_file='smart_layout.applescript',
+                        function_name='suggestLayoutForContent',
+                        args=[doc_name, content_type, ""]
+                    )
+                    
+                    if suggestion_result and suggestion_result.strip():
+                        layout = suggestion_result.strip()
+                    else:
+                        layout = "2"  # Fallback to Title & Content
+                except Exception:
+                    layout = "2"  # Fallback to Title & Content if smart layout fails
+            elif layout == "":
                 layout = "2"  # Layout 2 is typically Title & Content
             
             result = self.runner.run_inline_script(f'''
@@ -69,15 +86,44 @@ class SlideBasicOperations:
                 end tell
             ''')
             
-            if layout == "2":
+            # Set presenter notes for image/photo content types when using smart layout
+            if content_type in ["image", "photo", "gallery", "multiple_images"] and content_description:
+                try:
+                    # Escape quotes in content description
+                    escaped_description = content_description.replace('"', '\\"')
+                    self.runner.run_inline_script(f'''
+                        tell application "Keynote"
+                            if "{doc_name}" is "" then
+                                set targetDoc to front document
+                            else
+                                set targetDoc to document "{doc_name}"
+                            end if
+                            
+                            set targetSlide to slide {result} of targetDoc
+                            set presenter notes of targetSlide to "Image suggestion: {escaped_description}"
+                        end tell
+                    ''')
+                except Exception:
+                    # Ignore errors setting presenter notes
+                    pass
+            
+            # Prepare layout and notes info
+            notes_info = ""
+            if content_type in ["image", "photo", "gallery", "multiple_images"] and content_description:
+                notes_info = " + presenter notes with image suggestion"
+            
+            if content_type and layout != "2":
+                layout_info = f" (Smart Layout: {layout} - optimized for {content_type})"
+            elif layout == "2":
                 layout_info = " (Layout: Title & Content - Default)"
             elif layout:
                 layout_info = f" (Layout: {layout})"
             else:
                 layout_info = " (Layout: Default)"
+            
             return [TextContent(
                 type="text",
-                text=f"✅ Successfully added slide {result}{layout_info}"
+                text=f"✅ Successfully added slide {result}{layout_info}{notes_info}"
             )]
             
         except Exception as e:
