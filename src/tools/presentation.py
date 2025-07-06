@@ -60,7 +60,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         }
                     }
                 }
@@ -73,7 +73,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         },
                         "should_save": {
                             "type": "boolean",
@@ -98,7 +98,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         },
                         "theme_name": {
                             "type": "string",
@@ -116,7 +116,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         }
                     }
                 }
@@ -137,7 +137,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         }
                     }
                 }
@@ -150,7 +150,7 @@ class PresentationTools:
                     "properties": {
                         "doc_name": {
                             "type": "string",
-                            "description": "文档名称（可选，默认为当前文档）"
+                            "description": "Document name (optional, defaults to current document)"
                         }
                     }
                 }
@@ -187,7 +187,7 @@ class PresentationTools:
         try:
             validate_file_path(file_path)
             
-            # 确保 Keynote 运行
+            # Ensure Keynote is running
             if not self.runner.check_keynote_running():
                 self.runner.launch_keynote()
             
@@ -306,7 +306,7 @@ class PresentationTools:
     async def set_presentation_theme(self, theme_name: str, doc_name: str = "") -> List[TextContent]:
         """Set presentation theme"""
         try:
-            # 使用 Keynote 14 兼容的主题设置方法
+            # Use Keynote 14 compatible theme setting method
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
                     if "{doc_name}" is "" then
@@ -315,7 +315,7 @@ class PresentationTools:
                         set targetDoc to document "{doc_name}"
                     end if
                     
-                    -- 首先检查主题是否存在
+                    -- First check if theme exists
                     set themeExists to false
                     repeat with t in themes
                         if name of t is "{theme_name}" then
@@ -328,7 +328,7 @@ class PresentationTools:
                         return "theme_not_found"
                     end if
                     
-                    -- 使用 document theme 属性设置主题
+                    -- Use document theme property to set theme
                     try
                         set document theme of targetDoc to theme "{theme_name}"
                         return "success"
@@ -341,27 +341,27 @@ class PresentationTools:
             if result == "success":
                 return [TextContent(
                     type="text",
-                    text=f"✅ 成功设置主题: {theme_name}"
+                    text=f"✅ Successfully set theme: {theme_name}"
                 )]
             elif result == "theme_not_found":
                 return [TextContent(
                     type="text",
-                    text=f"❌ 主题不存在: {theme_name}"
+                    text=f"❌ Theme not found: {theme_name}"
                 )]
             else:
                 return [TextContent(
                     type="text",
-                    text=f"❌ 设置主题失败: {result}"
+                    text=f"❌ Failed to set theme: {result}"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 设置主题失败: {str(e)}"
+                text=f"❌ Failed to set theme: {str(e)}"
             )]
     
     async def get_presentation_info(self, doc_name: str = "") -> List[TextContent]:
-        """获取演示文稿信息"""
+        """Get presentation information"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -390,18 +390,18 @@ class PresentationTools:
                 name, slide_count, theme = info_parts[0], info_parts[1], info_parts[2]
                 return [TextContent(
                     type="text",
-                    text=f"📊 演示文稿信息:\n• 名称: {name}\n• 幻灯片数量: {slide_count}\n• 主题: {theme}"
+                    text=f"📊 Presentation Information:\n• Name: {name}\n• Slide Count: {slide_count}\n• Theme: {theme}"
                 )]
             else:
                 return [TextContent(
                     type="text",
-                    text=f"📊 演示文稿信息: {result}"
+                    text=f"📊 Presentation Information: {result}"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取演示文稿信息失败: {str(e)}"
+                text=f"❌ Failed to get presentation information: {str(e)}"
             )]
     
     async def get_available_themes(self) -> List[TextContent]:
@@ -439,11 +439,11 @@ class PresentationTools:
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取主题列表失败: {str(e)}"
+                text=f"❌ Failed to get themes list: {str(e)}"
             )]
     
     async def get_presentation_resolution(self, doc_name: str = "") -> List[TextContent]:
-        """获取演示文稿分辨率"""
+        """Get presentation resolution"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -463,44 +463,44 @@ class PresentationTools:
                         
                         return resolution
                     on error
-                        -- 返回标准16:9分辨率
+                        -- Return standard 16:9 resolution
                         return "1920,1080"
                     end try
                 end tell
             ''')
             
-            # 解析结果
+            # Parse result
             resolution_parts = result.split(",")
             if len(resolution_parts) >= 2:
                 width, height = resolution_parts[0], resolution_parts[1]
                 aspect_ratio = round(float(width) / float(height), 3)
                 
-                # 判断比例类型
+                # Determine ratio type
                 if 1.7 < aspect_ratio < 1.8:
                     ratio_type = "16:9"
                 elif 1.3 < aspect_ratio < 1.4:
                     ratio_type = "4:3"
                 else:
-                    ratio_type = "自定义"
+                    ratio_type = "Custom"
                 
                 return [TextContent(
                     type="text",
-                    text=f"📐 演示文稿分辨率:\n• 宽度: {width} 像素\n• 高度: {height} 像素\n• 比例: {aspect_ratio} ({ratio_type})"
+                    text=f"📐 Presentation Resolution:\n• Width: {width} pixels\n• Height: {height} pixels\n• Ratio: {aspect_ratio} ({ratio_type})"
                 )]
             else:
                 return [TextContent(
                     type="text",
-                    text=f"📐 分辨率信息: {result}"
+                    text=f"📐 Resolution Information: {result}"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取分辨率失败: {str(e)}"
+                text=f"❌ Failed to get resolution: {str(e)}"
             )]
     
     async def get_slide_size(self, doc_name: str = "") -> List[TextContent]:
-        """获取幻灯片尺寸和比例信息"""
+        """Get slide size and aspect ratio information"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -515,7 +515,7 @@ class PresentationTools:
                         set slideHeight to height of targetDoc
                         set aspectRatio to slideWidth / slideHeight
                         
-                        -- 判断比例类型
+                        -- Determine ratio type
                         set ratioType to ""
                         if aspectRatio > 1.7 and aspectRatio < 1.8 then
                             set ratioType to "16:9"
@@ -531,41 +531,41 @@ class PresentationTools:
                         
                         return sizeInfo
                     on error
-                        -- 返回默认值
+                        -- Return default values
                         return "1920,1080,1.777,16:9"
                     end try
                 end tell
             ''')
             
-            # 解析结果
+            # Parse result
             size_parts = result.split(",")
             if len(size_parts) >= 4:
                 width, height, ratio, ratio_type = size_parts[0], size_parts[1], size_parts[2], size_parts[3]
                 
-                # 计算一些有用的布局信息
+                # Calculate useful layout information
                 width_num = float(width)
                 height_num = float(height)
                 
-                # 计算安全区域（留出边距）
+                # Calculate safe area (leaving margins)
                 safe_width = int(width_num * 0.9)
                 safe_height = int(height_num * 0.9)
                 margin_x = int((width_num - safe_width) / 2)
                 margin_y = int((height_num - safe_height) / 2)
                 
-                # 计算常用位置
+                # Calculate common positions
                 center_x = int(width_num / 2)
                 center_y = int(height_num / 2)
                 
-                layout_info = f"""📏 幻灯片尺寸信息:
-• 尺寸: {width} × {height} 像素
-• 比例: {float(ratio):.3f} ({ratio_type})
-• 中心点: ({center_x}, {center_y})
+                layout_info = f"""📏 Slide Size Information:
+• Size: {width} × {height} pixels
+• Ratio: {float(ratio):.3f} ({ratio_type})
+• Center Point: ({center_x}, {center_y})
 
-📐 布局参考:
-• 安全区域: {safe_width} × {safe_height} 像素
-• 边距: {margin_x} × {margin_y} 像素
-• 标题区域建议: y = {margin_y} - {margin_y + 100}
-• 内容区域建议: y = {margin_y + 120} - {safe_height + margin_y}"""
+📐 Layout Reference:
+• Safe Area: {safe_width} × {safe_height} pixels
+• Margins: {margin_x} × {margin_y} pixels
+• Title Area Suggestion: y = {margin_y} - {margin_y + 100}
+• Content Area Suggestion: y = {margin_y + 120} - {safe_height + margin_y}"""
                 
                 return [TextContent(
                     type="text",
@@ -574,11 +574,11 @@ class PresentationTools:
             else:
                 return [TextContent(
                     type="text",
-                    text=f"📏 尺寸信息: {result}"
+                    text=f"📏 Size Information: {result}"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取幻灯片尺寸失败: {str(e)}"
+                text=f"❌ Failed to get slide size: {str(e)}"
             )] 
