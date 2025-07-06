@@ -52,90 +52,102 @@ class ContentTools:
         return [
             Tool(
                 name="add_text_box",
-                description="Add a text box to slide",
+                description="📝 TEXT CONTENT ADDER: Add custom text content to any slide with precise positioning. This tool creates a new text box with your content and places it at the specified coordinates. Perfect for adding custom text that doesn't fit in standard layout placeholders.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "Slide number"
+                            "description": "Target slide number (1-based indexing)",
+                            "minimum": 1
                         },
                         "text": {
                             "type": "string",
-                            "description": "Text content"
+                            "description": "Text content to add to the slide. Can include multiple lines and paragraphs.",
+                            "examples": ["Key takeaways from this quarter", "Contact us: info@company.com", "Thank you for your attention"]
                         },
                         "x": {
                             "type": "number",
-                            "description": "X coordinate (pixels, optional)"
+                            "description": "X coordinate in pixels from left edge (optional - will auto-position if not specified)"
                         },
                         "y": {
                             "type": "number",
-                            "description": "Y coordinate (pixels, optional)"
+                            "description": "Y coordinate in pixels from top edge (optional - will auto-position if not specified)"
                         }
                     },
-                    "required": ["slide_number", "text"]
+                    "required": ["slide_number", "text"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
                 name="add_image",
-                description="Add an image to slide",
+                description="🖼️ IMAGE INSERTER: Add photos, graphics, or visual content to slides with smart positioning. This tool inserts image files directly into your presentation and automatically handles sizing and positioning. Supports common formats: PNG, JPG, JPEG, GIF, TIFF.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "Slide number"
+                            "description": "Target slide number to add the image to (1-based indexing)",
+                            "minimum": 1
                         },
                         "image_path": {
                             "type": "string",
-                            "description": "Image file path"
+                            "description": "Full file path to the image file on your local system",
+                            "examples": ["/Users/username/Pictures/chart.png", "/Users/username/Desktop/logo.jpg", "~/Documents/product-photo.png"]
                         },
                         "x": {
                             "type": "number",
-                            "description": "X coordinate (pixels, optional)"
+                            "description": "X coordinate in pixels from left edge (optional - will center horizontally if not specified)"
                         },
                         "y": {
                             "type": "number",
-                            "description": "Y coordinate (pixels, optional)"
+                            "description": "Y coordinate in pixels from top edge (optional - will center vertically if not specified)"
                         }
                     },
-                    "required": ["slide_number", "image_path"]
+                    "required": ["slide_number", "image_path"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
                 name="set_slide_content",
-                description="Set slide content using theme's default title and body elements (recommended)",
+                description="🎨 THEME-AWARE CONTENT SETTER: Set slide content using the presentation's theme-styled title and body elements. This tool automatically applies consistent formatting, fonts, and colors based on your chosen theme. RECOMMENDED for professional-looking presentations instead of manual text boxes.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "Slide number"
+                            "description": "Target slide number to set content for (1-based indexing)",
+                            "minimum": 1
                         },
                         "title": {
                             "type": "string",
-                            "description": "Title text (optional)"
+                            "description": "Title text - will be styled according to the presentation theme (optional but recommended for most slides)",
+                            "examples": ["Q4 Results Overview", "Next Steps", "Key Takeaways", "Thank You"]
                         },
                         "body": {
                             "type": "string", 
-                            "description": "Body text (optional)"
+                            "description": "Body/content text - supports bullet points, paragraphs, and multiple lines with theme-appropriate formatting",
+                            "examples": ["• Revenue increased by 15%\n• Customer satisfaction improved\n• New markets opened", "Our three-step process ensures quality delivery every time.", "Questions?\nContact: support@company.com"]
                         }
                     },
-                    "required": ["slide_number"]
+                    "required": ["slide_number"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
                 name="get_slide_default_elements",
-                description="Get available default elements (title, body) in a slide",
+                description="🔍 LAYOUT INSPECTOR: Analyze a slide's available content placeholders and layout structure. This tool shows you what theme-styled elements (title, body, image placeholders) are available on a specific slide, helping you understand how to best add content using the slide's intended design.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "Slide number"
+                            "description": "Target slide number to analyze (1-based indexing)",
+                            "minimum": 1
                         }
                     },
-                    "required": ["slide_number"]
+                    "required": ["slide_number"],
+                    "additionalProperties": False
                 }
             )
         ]

@@ -18,24 +18,27 @@ class PresentationTools:
         return [
             Tool(
                 name="create_presentation",
-                description="Create new Keynote presentation",
+                description="📂 PRESENTATION CREATOR: Create a new Keynote presentation with professional themes. This tool opens a new presentation document in Keynote with your specified title and theme. Use this before starting any slide creation workflow.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "title": {
                             "type": "string",
-                            "description": "Presentation title"
+                            "description": "Main title for the presentation (will appear on the first slide)",
+                            "examples": ["Q4 Sales Review 2024", "Machine Learning Workshop", "Product Launch Strategy"]
                         },
                         "theme": {
                             "type": "string",
-                            "description": "Theme name (optional)"
+                            "description": "Keynote theme name for professional styling (optional). Use get_available_themes to see options.",
+                            "examples": ["White", "Black", "Gradient", "Modern Portfolio", "Bold"]
                         },
                         "template": {
                             "type": "string",
-                            "description": "Template path (optional)"
+                            "description": "Path to custom Keynote template file (optional, advanced users only)"
                         }
                     },
-                    "required": ["title"]
+                    "required": ["title"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
@@ -123,10 +126,11 @@ class PresentationTools:
             ),
             Tool(
                 name="get_available_themes",
-                description="Get available themes list",
+                description="🎨 THEME BROWSER: Get a complete list of available Keynote themes for professional presentation styling. Use this to discover theme options before creating a presentation or to switch themes on existing presentations. Each theme provides different color schemes, fonts, and layout styles.",
                 inputSchema={
                     "type": "object",
-                    "properties": {}
+                    "properties": {},
+                    "additionalProperties": False
                 }
             ),
             Tool(
@@ -171,10 +175,28 @@ class PresentationTools:
                 args=[title, theme]
             )
             
-            return [TextContent(
-                type="text",
-                text=f"✅ Successfully created presentation: {result}"
-            )]
+            # Now that presentation exists, get available layouts
+            try:
+                # Import here to avoid circular imports
+                from .slide import SlideTools
+                slide_tools = SlideTools()
+                layouts_result = await slide_tools.get_available_layouts()
+                layouts_text = layouts_result[0].text if layouts_result else ""
+                
+                response_text = f"✅ Successfully created presentation: {result}\n\n"
+                response_text += "🎯 **Ready for guided workflow!** Use `start_presentation_planning` to get layout guidance.\n\n"
+                response_text += layouts_text
+                
+                return [TextContent(
+                    type="text",
+                    text=response_text
+                )]
+            except:
+                # Fallback if layouts can't be retrieved
+                return [TextContent(
+                    type="text",
+                    text=f"✅ Successfully created presentation: {result}\n\n🎯 **Ready for guided workflow!** Use `start_presentation_planning` to get layout guidance."
+                )]
             
         except Exception as e:
             return [TextContent(

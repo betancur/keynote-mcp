@@ -22,58 +22,67 @@ class ExportTools:
         return [
             Tool(
                 name="screenshot_slide",
-                description="Take screenshot of a single slide",
+                description="📸 SLIDE SCREENSHOT: Capture a high-quality image of a specific slide for sharing, embedding, or preview purposes. This tool exports individual slides as image files in PNG or JPG format, maintaining the original slide quality and aspect ratio.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "slide_number": {
                             "type": "integer",
-                            "description": "Slide number"
+                            "description": "Target slide number to capture (1-based indexing)",
+                            "minimum": 1
                         },
                         "output_path": {
                             "type": "string",
-                            "description": "Output file path"
+                            "description": "Full file path where the screenshot will be saved (include filename and extension)",
+                            "examples": ["/Users/username/Desktop/slide-1.png", "~/Documents/presentation-cover.jpg", "/tmp/slide-screenshot.png"]
                         },
                         "format": {
                             "type": "string",
-                            "description": "Image format (png/jpg)",
-                            "enum": ["png", "jpg"]
+                            "description": "Image format for the output file",
+                            "enum": ["png", "jpg"],
+                            "default": "png"
                         }
                     },
-                    "required": ["slide_number", "output_path"]
+                    "required": ["slide_number", "output_path"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
                 name="export_pdf",
-                description="Export presentation as PDF",
+                description="📄 PDF EXPORTER: Export the entire presentation as a high-quality PDF document. Perfect for sharing presentations via email, printing, or creating handouts. The PDF preserves all formatting, fonts, and layout exactly as they appear in Keynote.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "output_path": {
                             "type": "string",
-                            "description": "Output PDF file path"
+                            "description": "Full file path where the PDF will be saved (must include .pdf extension)",
+                            "examples": ["/Users/username/Desktop/presentation.pdf", "~/Documents/Q4-Review.pdf", "/tmp/slides-export.pdf"]
                         }
                     },
-                    "required": ["output_path"]
+                    "required": ["output_path"],
+                    "additionalProperties": False
                 }
             ),
             Tool(
                 name="export_images",
-                description="Export all slides as image sequence",
+                description="🖼️ BULK IMAGE EXPORT: Export all slides as a sequence of individual image files. Perfect for creating slide galleries, web content, or when you need each slide as a separate image file. Images are automatically named with slide numbers.",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "output_dir": {
                             "type": "string",
-                            "description": "Output directory for images"
+                            "description": "Directory path where all slide images will be saved (directory will be created if it doesn't exist)",
+                            "examples": ["/Users/username/Desktop/slides/", "~/Documents/presentation-images/", "/tmp/exported-slides/"]
                         },
                         "format": {
                             "type": "string",
-                            "description": "Image format (png/jpg)",
-                            "enum": ["png", "jpg"]
+                            "description": "Image format for all exported slide files",
+                            "enum": ["png", "jpg"],
+                            "default": "png"
                         }
                     },
-                    "required": ["output_dir"]
+                    "required": ["output_dir"],
+                    "additionalProperties": False
                 }
             )
         ]

@@ -22,6 +22,8 @@ from mcp.server.stdio import stdio_server
 
 from .tools import PresentationTools, SlideTools, ContentTools, ExportTools
 from .tools.smart_layout import SmartLayoutTools
+from .tools.layout_guidance import LayoutGuidanceTools
+from .tools.guided_presentation import GuidedPresentationTools
 from .utils import KeynoteError, AppleScriptError, FileOperationError, ParameterError
 
 
@@ -34,7 +36,11 @@ class KeynoteMCPServer:
         self.slide_tools = SlideTools()
         self.content_tools = ContentTools()
         self.export_tools = ExportTools()
+        # Keep smart layout and guidance for internal use
         self.smart_layout_tools = SmartLayoutTools()
+        self.layout_guidance_tools = LayoutGuidanceTools()
+        # New guided workflow - this is what Claude Desktop will primarily use
+        self.guided_presentation_tools = GuidedPresentationTools()
         
         # Register handlers
         self._register_handlers()
@@ -44,13 +50,40 @@ class KeynoteMCPServer:
         
         @self.server.list_tools()
         async def list_tools() -> list[Tool]:
-            """List all available tools"""
+            """
+            List all available tools with strategic ordering for Claude Desktop.
+            
+            Tools are ordered by priority to guide Claude Desktop's workflow:
+            1. GUIDED WORKFLOW TOOLS (highest priority) - Forces proper planning
+            2. PRESENTATION MANAGEMENT - Core document operations  
+            3. CONTENT & EXPORT TOOLS - Adding content and sharing
+            4. ESSENTIAL SLIDE OPERATIONS - Limited to necessary functions only
+            
+            This ordering ensures Claude Desktop uses the guided workflow first,
+            resulting in better presentation quality and layout variety.
+            """
             tools = []
+            # Priority 1: Essential workflow tools (Claude MUST use these first)
+            # These tools enforce proper planning and provide layout guidance
+            tools.extend(self.guided_presentation_tools.get_tools())
+            
+            # Priority 2: Presentation management
+            # Basic document operations - create, open, save, themes
             tools.extend(self.presentation_tools.get_tools())
-            tools.extend(self.slide_tools.get_tools())
+            
+            # Priority 3: Content and export tools
+            # Adding content and exporting final results
             tools.extend(self.content_tools.get_tools())
             tools.extend(self.export_tools.get_tools())
-            tools.extend(self.smart_layout_tools.get_tools())
+            
+            # Priority 4: Advanced tools (kept for power users, but not prominently featured)
+            # Note: Removed basic slide tools and smart layout tools to force guided workflow
+            # Only include essential slide operations that don't bypass the guided workflow
+            essential_slide_tools = [tool for tool in self.slide_tools.get_tools() 
+                                   if tool.name in ["delete_slide", "duplicate_slide", "move_slide", 
+                                                  "get_slide_count", "select_slide", "get_slide_info", 
+                                                  "set_slide_layout", "get_available_layouts"]]
+            tools.extend(essential_slide_tools)
             return tools
         
         @self.server.call_tool()
@@ -99,15 +132,33 @@ class KeynoteMCPServer:
                         doc_name=arguments.get("doc_name", "")
                     )
                 
-                # Slide operation tools
-                elif name == "add_slide":
-                    return await self.slide_tools.add_slide(
-                        doc_name=arguments.get("doc_name", ""),
-                        position=arguments.get("position", 0),
-                        layout=arguments.get("layout", ""),
-                        content_type=arguments.get("content_type", ""),
-                        content_description=arguments.get("content_description", "")
+                # Guided presentation workflow tools (PRIORITY)
+                elif name == "start_presentation_planning":
+                    return await self.guided_presentation_tools.start_presentation_planning(
+                        presentation_title=arguments["presentation_title"],
+                        presentation_length=arguments["presentation_length"],
+                        presentation_type=arguments.get("presentation_type", "business")
                     )
+                elif name == "create_guided_slide":
+                    return await self.guided_presentation_tools.create_guided_slide(
+                        slide_number=arguments["slide_number"],
+                        content_type=arguments["content_type"],
+                        content_description=arguments["content_description"],
+                        preferred_layout=arguments.get("preferred_layout", ""),
+                        force_create=arguments.get("force_create", False)
+                    )
+                elif name == "check_presentation_progress":
+                    return await self.guided_presentation_tools.check_presentation_progress(
+                        doc_name=arguments.get("doc_name", "")
+                    )
+                elif name == "get_layout_recommendations_for_position":
+                    return await self.guided_presentation_tools.get_layout_recommendations_for_position(
+                        slide_position=arguments["slide_position"],
+                        content_description=arguments["content_description"]
+                    )
+                
+                # Legacy slide operation tools (kept for compatibility but discouraged)
+                # elif name == "add_slide":  # REMOVED - forces use of guided workflow
                 elif name == "delete_slide":
                     return await self.slide_tools.delete_slide(
                         slide_number=arguments["slide_number"],
@@ -193,30 +244,12 @@ class KeynoteMCPServer:
                         format=arguments.get("format", "png")
                     )
                 
-                # Smart layout tools
-                elif name == "get_available_master_slides":
-                    return await self.smart_layout_tools.get_available_master_slides(
-                        doc_name=arguments.get("doc_name", "")
-                    )
-                elif name == "suggest_layout_for_content":
-                    return await self.smart_layout_tools.suggest_layout_for_content(
-                        content_type=arguments["content_type"],
-                        content_description=arguments.get("content_description", ""),
-                        doc_name=arguments.get("doc_name", "")
-                    )
-                elif name == "add_slide_with_smart_layout":
-                    return await self.smart_layout_tools.add_slide_with_smart_layout(
-                        content_type=arguments["content_type"],
-                        content_description=arguments.get("content_description", ""),
-                        position=arguments.get("position", 0),
-                        doc_name=arguments.get("doc_name", "")
-                    )
-                elif name == "get_layout_recommendations":
-                    return await self.smart_layout_tools.get_layout_recommendations(
-                        content_type=arguments["content_type"],
-                        content_description=arguments.get("content_description", ""),
-                        doc_name=arguments.get("doc_name", "")
-                    )
+                # Legacy tools (REMOVED to force guided workflow)
+                # These tools are still available internally but not exposed to Claude Desktop
+                # This forces the use of the guided presentation workflow
+                
+                # Note: Smart layout and guidance tools are now integrated into the guided workflow
+                # If needed for debugging, they can be temporarily re-enabled
                 
                 else:
                     return [TextContent(
