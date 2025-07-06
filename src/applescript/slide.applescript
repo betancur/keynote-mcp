@@ -16,21 +16,37 @@ on addSlide(docName, slidePosition, layoutType)
             set newSlide to make new slide at slide slidePosition of targetDoc
         end if
         
-        -- If no layout is specified, use Blank layout by default to avoid default text placeholders
+        -- If no layout is specified, try to use a layout with title and content
         if layoutType is "" then
-            set layoutType to "Blank"
-        end if
-        
-        if layoutType is not "" then
+            try
+                -- Try to use the second master slide (typically title and bullets)
+                set masterSlides to master slides of targetDoc
+                if (count of masterSlides) > 1 then
+                    set base slide of newSlide to master slide 2 of targetDoc
+                else
+                    -- If only one master slide, use it
+                    set base slide of newSlide to master slide 1 of targetDoc
+                end if
+            on error
+                -- If that fails, leave with default layout
+                log "Could not set master slide layout, using default"
+            end try
+        else
             try
                 set base slide of newSlide to master slide layoutType of targetDoc
             on error
-                -- If layout doesn't exist, try using Blank layout
+                -- If layout doesn't exist, try using a layout with content
                 try
-                    set base slide of newSlide to master slide "Blank" of targetDoc
-                    log "Layout " & layoutType & " not found, using Blank layout"
+                    set masterSlides to master slides of targetDoc
+                    if (count of masterSlides) > 1 then
+                        set base slide of newSlide to master slide 2 of targetDoc
+                        log "Layout " & layoutType & " not found, using second master slide"
+                    else
+                        set base slide of newSlide to master slide 1 of targetDoc
+                        log "Layout " & layoutType & " not found, using first master slide"
+                    end if
                 on error
-                    log "Neither " & layoutType & " nor Blank layout found, using default layout"
+                    log "Could not set any master slide layout"
                 end try
             end try
         end if
