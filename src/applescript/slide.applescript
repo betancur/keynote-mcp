@@ -16,7 +16,7 @@ on addSlide(docName, slidePosition, layoutType)
             set newSlide to make new slide at slide slidePosition of targetDoc
         end if
         
-        -- If no layout is specified, try to use a layout with title and content
+    -- If no layout is specified, try to use a layout with title and content
         if layoutType is "" then
             try
                 -- Try to use the second master slide (typically title and bullets)

@@ -15,32 +15,32 @@ def get_slide_tool_schemas():
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "position": {
                         "type": "integer",
-                        "description": "插入位置（可选，0表示在末尾添加）"
+                        "description": "Insert position (optional, 0 means add at the end)"
                     },
                     "layout": {
                         "type": "string",
-                        "description": "布局类型（可选）"
+                        "description": "Layout type (optional)"
                     }
                 }
             }
         ),
         Tool(
             name="delete_slide",
-            description="删除幻灯片",
+            description="Delete slide",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "slide_number": {
                         "type": "integer",
-                        "description": "要删除的幻灯片编号"
+                        "description": "Slide number to delete"
                     }
                 },
                 "required": ["slide_number"]
@@ -48,21 +48,21 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="duplicate_slide",
-            description="复制幻灯片",
+            description="Duplicate slide",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "slide_number": {
                         "type": "integer",
-                        "description": "要复制的幻灯片编号"
+                        "description": "Slide number to duplicate"
                     },
                     "new_position": {
                         "type": "integer",
-                        "description": "新位置（可选，0表示在末尾添加）"
+                        "description": "New position (optional, 0 means add at the end)"
                     }
                 },
                 "required": ["slide_number"]
@@ -70,21 +70,21 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="move_slide",
-            description="移动幻灯片位置",
+            description="Move slide position",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "from_position": {
                         "type": "integer",
-                        "description": "原位置"
+                        "description": "Original position"
                     },
                     "to_position": {
                         "type": "integer",
-                        "description": "目标位置"
+                        "description": "Target position"
                     }
                 },
                 "required": ["from_position", "to_position"]
@@ -92,30 +92,30 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="get_slide_count",
-            description="获取幻灯片数量",
+            description="Get slide count",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     }
                 }
             }
         ),
         Tool(
             name="select_slide",
-            description="选择指定幻灯片",
+            description="Select specified slide",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "slide_number": {
                         "type": "integer",
-                        "description": "幻灯片编号"
+                        "description": "Slide number"
                     }
                 },
                 "required": ["slide_number"]
@@ -123,21 +123,21 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="set_slide_layout",
-            description="设置幻灯片布局",
+            description="Set slide layout",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "slide_number": {
                         "type": "integer",
-                        "description": "幻灯片编号"
+                        "description": "Slide number"
                     },
                     "layout": {
                         "type": "string",
-                        "description": "布局类型"
+                        "description": "Layout type"
                     }
                 },
                 "required": ["slide_number", "layout"]
@@ -145,17 +145,17 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="get_slide_info",
-            description="获取幻灯片信息",
+            description="Get slide information",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     },
                     "slide_number": {
                         "type": "integer",
-                        "description": "幻灯片编号"
+                        "description": "Slide number"
                     }
                 },
                 "required": ["slide_number"]
@@ -163,13 +163,13 @@ def get_slide_tool_schemas():
         ),
         Tool(
             name="get_available_layouts",
-            description="获取可用布局列表",
+            description="Get available layout list",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "doc_name": {
                         "type": "string",
-                        "description": "文档名称（可选，默认为当前文档）"
+                        "description": "Document name (optional, defaults to current document)"
                     }
                 }
             }

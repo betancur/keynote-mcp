@@ -14,7 +14,7 @@ class SlideNavigationOperations:
         self.runner = runner
     
     async def get_slide_count(self, doc_name: str = "") -> List[TextContent]:
-        """Get slide count"""
+        """Get the number of slides"""
         try:
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -30,17 +30,17 @@ class SlideNavigationOperations:
             
             return [TextContent(
                 type="text",
-                text=f"📊 幻灯片数量: {result}"
+                text=f"📊 Slide count: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取幻灯片数量失败: {str(e)}"
+                text=f"❌ Failed to get slide count: {str(e)}"
             )]
     
     async def select_slide(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
-        """Select specified slide"""
+        """Select the specified slide"""
         try:
             validate_slide_number(slide_number)
             
@@ -58,17 +58,17 @@ class SlideNavigationOperations:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功选择幻灯片 {slide_number}"
+                text=f"✅ Successfully selected slide {slide_number}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 选择幻灯片失败: {str(e)}"
+                text=f"❌ Failed to select slide: {str(e)}"
             )]
     
     async def get_slide_info(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
-        """Get slide information"""
+        """Get information about a slide"""
         try:
             validate_slide_number(slide_number)
             
@@ -106,16 +106,16 @@ class SlideNavigationOperations:
                 number, layout, text_count = info_parts[0], info_parts[1], info_parts[2]
                 return [TextContent(
                     type="text",
-                    text=f"📊 幻灯片 {slide_number} 信息:\n• 编号: {number}\n• 布局: {layout}\n• 文本框数量: {text_count}"
+                    text=f"📊 Slide {slide_number} info:\n• Number: {number}\n• Layout: {layout}\n• Text box count: {text_count}"
                 )]
             else:
                 return [TextContent(
                     type="text",
-                    text=f"📊 幻灯片 {slide_number} 信息: {result}"
+                    text=f"📊 Slide {slide_number} info: {result}"
                 )]
                 
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 获取幻灯片信息失败: {str(e)}"
+                text=f"❌ Failed to get slide info: {str(e)}"
             )]
