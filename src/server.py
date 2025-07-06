@@ -20,7 +20,7 @@ from mcp.types import (
 )
 from mcp.server.stdio import stdio_server
 
-from .tools import PresentationTools, SlideTools, ContentTools, ExportTools
+from .tools import PresentationTools, SlideTools, ContentTools, ExportTools, ZenValidationTools
 from .tools.smart_layout import SmartLayoutTools
 from .tools.layout_guidance import LayoutGuidanceTools
 from .tools.guided_presentation import GuidedPresentationTools
@@ -41,6 +41,8 @@ class KeynoteMCPServer:
         self.layout_guidance_tools = LayoutGuidanceTools()
         # New guided workflow - this is what Claude Desktop will primarily use
         self.guided_presentation_tools = GuidedPresentationTools()
+        # Zen validation tools for Presentation Zen principles
+        self.zen_validation_tools = ZenValidationTools()
         
         # Register handlers
         self._register_handlers()
@@ -54,29 +56,34 @@ class KeynoteMCPServer:
             List all available tools with strategic ordering for Claude Desktop.
             
             Tools are ordered by priority to guide Claude Desktop's workflow:
-            1. GUIDED WORKFLOW TOOLS (highest priority) - Forces proper planning
-            2. PRESENTATION MANAGEMENT - Core document operations  
-            3. CONTENT & EXPORT TOOLS - Adding content and sharing
-            4. ESSENTIAL SLIDE OPERATIONS - Limited to necessary functions only
+            1. ZEN VALIDATION TOOLS (highest priority) - Presentation Zen principles
+            2. GUIDED WORKFLOW TOOLS - Forces proper planning and layout guidance
+            3. PRESENTATION MANAGEMENT - Core document operations  
+            4. CONTENT & EXPORT TOOLS - Adding content and sharing
+            5. ESSENTIAL SLIDE OPERATIONS - Limited to necessary functions only
             
-            This ordering ensures Claude Desktop uses the guided workflow first,
-            resulting in better presentation quality and layout variety.
+            This ordering ensures Claude Desktop follows Presentation Zen methodology first,
+            resulting in better presentation quality, layout variety, and zen principles.
             """
             tools = []
-            # Priority 1: Essential workflow tools (Claude MUST use these first)
+            # Priority 1: Zen validation tools (HIGHEST priority - Presentation Zen principles)
+            # These tools ensure adherence to Garr Reynolds' Presentation Zen methodology
+            tools.extend(self.zen_validation_tools.get_tools())
+            
+            # Priority 2: Essential workflow tools (Claude MUST use these second)
             # These tools enforce proper planning and provide layout guidance
             tools.extend(self.guided_presentation_tools.get_tools())
             
-            # Priority 2: Presentation management
+            # Priority 3: Presentation management
             # Basic document operations - create, open, save, themes
             tools.extend(self.presentation_tools.get_tools())
             
-            # Priority 3: Content and export tools
+            # Priority 4: Content and export tools
             # Adding content and exporting final results
             tools.extend(self.content_tools.get_tools())
             tools.extend(self.export_tools.get_tools())
             
-            # Priority 4: Advanced tools (kept for power users, but not prominently featured)
+            # Priority 5: Advanced tools (kept for power users, but not prominently featured)
             # Note: Removed basic slide tools and smart layout tools to force guided workflow
             # Only include essential slide operations that don't bypass the guided workflow
             essential_slide_tools = [tool for tool in self.slide_tools.get_tools() 
@@ -130,6 +137,39 @@ class KeynoteMCPServer:
                 elif name == "get_slide_size":
                     return await self.presentation_tools.get_slide_size(
                         doc_name=arguments.get("doc_name", "")
+                    )
+                
+                # Zen validation tools (HIGHEST PRIORITY - Presentation Zen principles)
+                elif name == "validate_zen_principles":
+                    return await self.zen_validation_tools.validate_zen_principles(
+                        doc_name=arguments.get("doc_name", ""),
+                        check_type=arguments.get("check_type", "full"),
+                        slide_range=arguments.get("slide_range", "all")
+                    )
+                elif name == "detect_text_overload":
+                    return await self.zen_validation_tools.detect_text_overload(
+                        doc_name=arguments.get("doc_name", ""),
+                        word_threshold=arguments.get("word_threshold", 15),
+                        provide_alternatives=arguments.get("provide_alternatives", True)
+                    )
+                elif name == "suggest_story_structure":
+                    return await self.zen_validation_tools.suggest_story_structure(
+                        presentation_topic=arguments["presentation_topic"],
+                        target_audience=arguments.get("target_audience", "general"),
+                        presentation_length=arguments["presentation_length"],
+                        emotional_goal=arguments.get("emotional_goal", "convince")
+                    )
+                elif name == "apply_kanso_principles":
+                    return await self.zen_validation_tools.apply_kanso_principles(
+                        doc_name=arguments.get("doc_name", ""),
+                        optimization_level=arguments.get("optimization_level", "moderate"),
+                        preserve_branding=arguments.get("preserve_branding", True)
+                    )
+                elif name == "check_back_row_visibility":
+                    return await self.zen_validation_tools.check_back_row_visibility(
+                        doc_name=arguments.get("doc_name", ""),
+                        room_size=arguments.get("room_size", "medium"),
+                        check_contrast=arguments.get("check_contrast", True)
                     )
                 
                 # Guided presentation workflow tools (PRIORITY)

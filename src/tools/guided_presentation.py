@@ -171,13 +171,23 @@ Keynote offers various professional layouts designed for different content types
             response_text += variety_guide_text + "\n\n"
             
             response_text += "=" * 60 + "\n"
-            response_text += "🚀 **Next Steps:**\n"
-            response_text += f"1. Use `create_guided_slide` for each of your {presentation_length} slides\n"
-            response_text += "2. Specify slide_number, content_type, and content_description\n"
-            response_text += "3. I'll suggest the best layout based on position and content\n"
-            response_text += "4. Use `check_presentation_progress` to review variety\n\n"
+            response_text += "🧘 **Presentation Zen Principles (by Garr Reynolds):**\n"
+            response_text += "• **Restraint in preparation** - Plan thoroughly but execute simply\n"
+            response_text += "• **Simplicity in design** - Focus on one idea per slide\n"
+            response_text += "• **Naturalness in delivery** - Be authentic and conversational\n"
+            response_text += "• **Kanso (Simplicity)** - Beauty through elimination and omission\n"
+            response_text += "• **Shizen (Naturalness)** - Avoid over-refinement and elaborate designs\n\n"
             
-            response_text += "💡 **Remember**: Vary your layouts! Avoid using the same layout more than 2 times in a row.\n\n"
+            response_text += "=" * 60 + "\n"
+            response_text += "🚀 **Next Steps (Zen Workflow):**\n"
+            response_text += f"1. Use `suggest_story_structure` to plan your narrative arc\n"
+            response_text += f"2. Use `create_guided_slide` for each of your {presentation_length} slides\n"
+            response_text += "3. Specify slide_number, content_type, and content_description\n"
+            response_text += "4. I'll suggest the best layout based on position and content\n"
+            response_text += "5. Use `detect_text_overload` to check text simplicity\n"
+            response_text += "6. Use `validate_zen_principles` for final zen compliance\n\n"
+            
+            response_text += "💡 **Zen Reminder**: What you leave out is as important as what you include!\n\n"
             
             # Check if we can access layouts (presentation exists)
             try:
@@ -314,15 +324,29 @@ Keynote offers various professional layouts designed for different content types
             # Update session state
             self.session_state['slides_created_without_planning'] += 1
             
-            # Add guidance to the response
+            # Add guidance to the response with zen validation
             original_text = result[0].text
             guidance_text = f"\n\n💡 **Layout Choice**: {suggested_layout}\n"
             guidance_text += f"📍 **Position**: Slide {slide_number}\n"
             guidance_text += f"🎯 **Content**: {content_type} - {content_description}\n"
             
+            # Zen validation for content description (simplicity check)
+            word_count = len(content_description.split())
+            if word_count > 20:
+                guidance_text += f"\n🧘 **Zen Alert**: Content description muy extenso ({word_count} palabras)\n"
+                guidance_text += f"💡 **Zen Tip**: Considera simplificar a ideas más concisas\n"
+            elif word_count > 15:
+                guidance_text += f"\n⚠️ **Zen Notice**: Content moderadamente extenso ({word_count} palabras)\n"
+            else:
+                guidance_text += f"\n✅ **Zen Compliant**: Content sigue principios de simplicidad\n"
+            
             # Suggest checking variety periodically
             if self.session_state['slides_created_without_planning'] >= 2:
-                guidance_text += f"\n🔄 **Tip**: Consider using `check_presentation_progress` to review layout variety"
+                guidance_text += f"\n🔄 **Tip**: Consider using `detect_text_overload` to check zen compliance"
+            
+            # Add zen reminders every few slides
+            if slide_number % 3 == 0:
+                guidance_text += f"\n🧘 **Zen Reminder**: Less is more powerful - embrace simplicity"
             
             enhanced_text = original_text + guidance_text
             

@@ -183,9 +183,46 @@ class PresentationTools:
                 layouts_result = await slide_tools.get_available_layouts()
                 layouts_text = layouts_result[0].text if layouts_result else ""
                 
+                # Parse layouts from the text for easier consumption by Claude Desktop
+                layout_names = []
+                if layouts_text:
+                    lines = layouts_text.split('\n')
+                    for line in lines:
+                        if line.strip().startswith('•'):
+                            layout_name = line.strip()[1:].strip()
+                            if layout_name:
+                                layout_names.append(layout_name)
+                
                 response_text = f"✅ Successfully created presentation: {result}\n\n"
-                response_text += "🎯 **Ready for guided workflow!** Use `start_presentation_planning` to get layout guidance.\n\n"
-                response_text += layouts_text
+                
+                # Enhanced layout information for Claude Desktop
+                if layout_names:
+                    response_text += f"🎨 **Available Layouts ({len(layout_names)} total):**\n"
+                    # Show first 8 layouts prominently
+                    for i, layout in enumerate(layout_names[:8]):
+                        response_text += f"• **{layout}** - Use `add_slide` with layout=\"{layout}\"\n"
+                    
+                    if len(layout_names) > 8:
+                        response_text += f"• ... and {len(layout_names) - 8} more layouts\n"
+                    
+                    response_text += "\n💡 **Layout Usage Tips:**\n"
+                    response_text += "• Mix different layouts to create visual variety\n"
+                    response_text += "• Use 'Title & Content' for standard slides\n"
+                    response_text += "• Use 'Title Only' for section dividers\n"
+                    response_text += "• Use 'Blank' for custom layouts\n\n"
+                    
+                    # Provide ready-to-use examples
+                    response_text += "🚀 **Quick Start Examples:**\n"
+                    if "Title & Content" in layout_names:
+                        response_text += f"• `add_slide` with layout=\"Title & Content\"\n"
+                    if "Title Only" in layout_names:
+                        response_text += f"• `add_slide` with layout=\"Title Only\"\n"
+                    if "Blank" in layout_names:
+                        response_text += f"• `add_slide` with layout=\"Blank\"\n"
+                else:
+                    response_text += layouts_text
+                
+                response_text += "\n🎯 **Ready for guided workflow!** Use `start_presentation_planning` to get layout guidance."
                 
                 return [TextContent(
                     type="text",
