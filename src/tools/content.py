@@ -42,9 +42,9 @@ class ContentTools:
             'deleteObject': 'object_management.applescript',
             'getSlideContentStats': 'object_management.applescript',
             
-            # Theme-aware content functions (NEW)
-            'setSlideContent': 'text_content.applescript',
-            'getSlideDefaultElements': 'text_content.applescript'
+            # Theme-aware content functions (NEW) - using simple version to avoid modular issues
+            'setSlideContent': 'slide_content_simple.applescript',
+            'getSlideDefaultElements': 'slide_content_simple.applescript'
         }
     
     def get_tools(self) -> List[Tool]:
@@ -157,7 +157,7 @@ class ContentTools:
                 x, y = 100.0, 200.0
             
             # Use modular AppleScript function
-            result = await self.runner.run_function(
+            result = self.runner.run_function(
                 script_file=self.script_files['addTextBox'],
                 function_name='addTextBox',
                 args=["", slide_number, text, x, y, 0, 0]
@@ -186,7 +186,7 @@ class ContentTools:
                 x, y = 300.0, 200.0
             
             # Use modular AppleScript function
-            result = await self.runner.run_function(
+            result = self.runner.run_function(
                 script_file=self.script_files['addImage'],
                 function_name='addImage',
                 args=["", slide_number, image_path, x, y, 0, 0]
@@ -215,7 +215,7 @@ class ContentTools:
                 )]
             
             # Use theme-aware function
-            result = await self.runner.run_function(
+            result = self.runner.run_function(
                 script_file=self.script_files['setSlideContent'],
                 function_name='setSlideContent',
                 args=["", slide_number, title or "", body or ""]
@@ -243,7 +243,7 @@ class ContentTools:
         try:
             validate_slide_number(slide_number)
             
-            result = await self.runner.run_function(
+            result = self.runner.run_function(
                 script_file=self.script_files['getSlideDefaultElements'],
                 function_name='getSlideDefaultElements',
                 args=["", slide_number]

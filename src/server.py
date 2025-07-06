@@ -160,6 +160,16 @@ class KeynoteMCPServer:
                         x=arguments.get("x"),
                         y=arguments.get("y")
                     )
+                elif name == "set_slide_content":
+                    return await self.content_tools.set_slide_content(
+                        slide_number=arguments["slide_number"],
+                        title=arguments.get("title"),
+                        body=arguments.get("body")
+                    )
+                elif name == "get_slide_default_elements":
+                    return await self.content_tools.get_slide_default_elements(
+                        slide_number=arguments["slide_number"]
+                    )
                 
                 # Export and screenshot tools
                 elif name == "screenshot_slide":

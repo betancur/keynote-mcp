@@ -16,9 +16,9 @@ class SlideBasicOperations:
     async def add_slide(self, doc_name: str = "", position: int = 0, layout: str = "", clear_default_content: bool = True) -> List[TextContent]:
         """Add new slide"""
         try:
-            # If clear default content is enabled and no layout is specified, use Blank layout
-            if clear_default_content and layout == "":
-                layout = "Blank"
+            # If no layout is specified, use Title & Content layout (layout 2)
+            if layout == "":
+                layout = "2"  # Layout 2 is typically Title & Content
             
             result = self.runner.run_inline_script(f'''
                 tell application "Keynote"
@@ -37,14 +37,30 @@ class SlideBasicOperations:
                     
                     if "{layout}" is not "" then
                         try
-                            set base slide of newSlide to master slide "{layout}" of targetDoc
+                            -- Try to use layout by number first (more reliable)
+                            if "{layout}" is "1" or "{layout}" is "2" or "{layout}" is "3" or "{layout}" is "4" or "{layout}" is "5" then
+                                set layoutNumber to {layout} as integer
+                                set masterSlides to slide layouts of targetDoc
+                                if layoutNumber ≤ (count of masterSlides) then
+                                    set base slide of newSlide to item layoutNumber of masterSlides
+                                else
+                                    -- Fallback to layout 2 (Title & Content)
+                                    set base slide of newSlide to item 2 of masterSlides
+                                end if
+                            else
+                                -- Try to use layout by name
+                                set base slide of newSlide to master slide "{layout}" of targetDoc
+                            end if
                         on error
-                            -- 如果布局不存在，尝试使用 Blank 布局
+                            -- Fallback to layout 2 (Title & Content)
                             try
-                                set base slide of newSlide to master slide "Blank" of targetDoc
-                                log "Layout {layout} not found, using Blank layout"
+                                set masterSlides to slide layouts of targetDoc
+                                if (count of masterSlides) ≥ 2 then
+                                    set base slide of newSlide to item 2 of masterSlides
+                                    log "Using default Title & Content layout"
+                                end if
                             on error
-                                log "Neither {layout} nor Blank layout found, using default layout"
+                                log "Could not set any layout, using document default"
                             end try
                         end try
                     end if
@@ -53,16 +69,21 @@ class SlideBasicOperations:
                 end tell
             ''')
             
-            layout_info = f" (布局: {layout})" if layout else " (默认布局)"
+            if layout == "2":
+                layout_info = " (Layout: Title & Content - Default)"
+            elif layout:
+                layout_info = f" (Layout: {layout})"
+            else:
+                layout_info = " (Layout: Default)"
             return [TextContent(
                 type="text",
-                text=f"✅ 成功添加幻灯片，编号: {result}{layout_info}"
+                text=f"✅ Successfully added slide {result}{layout_info}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 添加幻灯片失败: {str(e)}"
+                text=f"❌ Failed to add slide: {str(e)}"
             )]
     
     async def delete_slide(self, slide_number: int, doc_name: str = "") -> List[TextContent]:
@@ -84,13 +105,13 @@ class SlideBasicOperations:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功删除幻灯片 {slide_number}"
+                text=f"✅ Successfully deleted slide {slide_number}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 删除幻灯片失败: {str(e)}"
+                text=f"❌ Failed to delete slide: {str(e)}"
             )]
     
     async def duplicate_slide(self, slide_number: int, doc_name: str = "", new_position: int = 0) -> List[TextContent]:
@@ -119,13 +140,13 @@ class SlideBasicOperations:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功复制幻灯片，新编号: {result}"
+                text=f"✅ Successfully duplicated slide, new number: {result}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 复制幻灯片失败: {str(e)}"
+                text=f"❌ Failed to duplicate slide: {str(e)}"
             )]
     
     async def move_slide(self, from_position: int, to_position: int, doc_name: str = "") -> List[TextContent]:
@@ -149,11 +170,11 @@ class SlideBasicOperations:
             
             return [TextContent(
                 type="text",
-                text=f"✅ 成功移动幻灯片从位置 {from_position} 到位置 {to_position}"
+                text=f"✅ Successfully moved slide from position {from_position} to position {to_position}"
             )]
             
         except Exception as e:
             return [TextContent(
                 type="text",
-                text=f"❌ 移动幻灯片失败: {str(e)}"
+                text=f"❌ Failed to move slide: {str(e)}"
             )]

@@ -11,8 +11,8 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from utils.applescript_runner import AppleScriptRunner
-from tools.content import ContentTools
+from src.utils.applescript_runner import AppleScriptRunner
+from src.tools.content import ContentTools
 
 async def test_modular_architecture():
     """Test the modular AppleScript architecture."""
@@ -26,7 +26,7 @@ async def test_modular_architecture():
         # Test 1: Check if modular files exist
         print("\n📁 Checking modular AppleScript files...")
         for script_name, file_path in content_tools.script_files.items():
-            full_path = os.path.join(os.path.dirname(__file__), file_path)
+            full_path = os.path.join(os.path.dirname(__file__), "src", "applescript", file_path)
             if os.path.exists(full_path):
                 print(f"✅ {script_name}: {file_path}")
             else:
@@ -35,11 +35,11 @@ async def test_modular_architecture():
         # Test 2: Test AppleScript runner with a simple function
         print("\n🍎 Testing AppleScript runner...")
         try:
-            # Test running a function from text_content.applescript
-            result = await runner.run_function(
-                "text_content", 
+            # Test running a function from slide_content_simple.applescript
+            result = runner.run_function(
+                "slide_content_simple.applescript", 
                 "getSlideDefaultElements", 
-                {"slideNumber": 1}
+                ["", 1]
             )
             print(f"✅ AppleScript function execution: SUCCESS")
             print(f"   Result type: {type(result)}")

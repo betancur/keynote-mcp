@@ -160,35 +160,16 @@ class PresentationTools:
     async def create_presentation(self, title: str, theme: str = "", template: str = "") -> List[TextContent]:
         """Create new presentation"""
         try:
-            # 确保 Keynote 运行
+            # Ensure Keynote is running
             if not self.runner.check_keynote_running():
                 self.runner.launch_keynote()
             
-            # Create presentation
-            result = self.runner.run_inline_script(f'''
-                tell application "Keynote"
-                    activate
-                    set newDoc to make new document
-                    
-                    if "{theme}" is not "" then
-                        try
-                            set theme of newDoc to theme "{theme}"
-                        on error
-                            log "Theme {theme} not found, using default theme"
-                        end try
-                    end if
-
-                    set layout to "Blank"
-                    
-                    -- 如果指定了标题，保存到桌面
-                    if "{title}" is not "" then
-                        set desktopPath to (path to desktop as string) & "{title}.key"
-                        save newDoc in file desktopPath
-                    end if
-                    
-                    return name of newDoc
-                end tell
-            ''')
+            # Use the simplified presentation script
+            result = self.runner.run_function(
+                script_file='presentation_simple.applescript',
+                function_name='createNewPresentation',
+                args=[title, theme]
+            )
             
             return [TextContent(
                 type="text",
@@ -424,35 +405,35 @@ class PresentationTools:
             )]
     
     async def get_available_themes(self) -> List[TextContent]:
-        """获取可用主题列表"""
+        """Get available themes list"""
         try:
-            # 使用更好的分隔符来获取主题列表
-            result = self.runner.run_inline_script('''
-                tell application "Keynote"
-                    set themeList to {}
-                    repeat with t in themes
-                        set end of themeList to name of t
-                    end repeat
-                    
-                    set AppleScript's text item delimiters to "|||"
-                    set themeString to themeList as string
-                    set AppleScript's text item delimiters to ""
-                    
-                    return themeString
-                end tell
-            ''')
+            # Use the simplified presentation script
+            result = self.runner.run_function(
+                script_file='presentation_simple.applescript',
+                function_name='getAvailableThemes',
+                args=[]
+            )
             
             if result:
-                themes = result.split("|||")
-                theme_list = "\n".join([f"• {theme}" for theme in themes if theme.strip()])
-                return [TextContent(
-                    type="text",
-                    text=f"🎨 可用主题 ({len(themes)} 个):\n{theme_list}"
-                )]
+                # Parse the AppleScript list result
+                themes = result.replace("{", "").replace("}", "").split(", ")
+                themes = [theme.strip('"') for theme in themes if theme.strip()]
+                
+                if themes:
+                    theme_list = "\n".join([f"• {theme}" for theme in themes])
+                    return [TextContent(
+                        type="text",
+                        text=f"🎨 Available themes ({len(themes)}):\n{theme_list}"
+                    )]
+                else:
+                    return [TextContent(
+                        type="text",
+                        text="🎨 No themes found"
+                    )]
             else:
                 return [TextContent(
                     type="text",
-                    text="🎨 没有找到可用主题"
+                    text="🎨 Could not retrieve themes"
                 )]
                 
         except Exception as e:

@@ -16,7 +16,7 @@ on addTextBox(docName, slideNumber, textContent, xPos, yPos, textWidth, textHeig
                 -- Create text box
                 set newTextBox to make new text item with properties {object text:textContent}
                 
-                -- Set position and size
+                -- Set position and size if specified
                 if xPos is not 0 or yPos is not 0 then
                     set position of newTextBox to {xPos, yPos}
                 end if
@@ -400,7 +400,8 @@ on setSlideContent(docName, slideNumber, titleText, bodyText)
                 try
                     -- Set title using default title item
                     if titleText is not "" then
-                        set the object text of the default title item to titleText
+                        set titleItem to default title item
+                        set object text of titleItem to titleText
                     end if
                 on error
                     -- No default title item available
@@ -409,7 +410,8 @@ on setSlideContent(docName, slideNumber, titleText, bodyText)
                 try
                     -- Set body using default body item
                     if bodyText is not "" then
-                        set the object text of the default body item to bodyText
+                        set bodyItem to default body item
+                        set object text of bodyItem to bodyText
                     end if
                 on error
                     -- No default body item available
